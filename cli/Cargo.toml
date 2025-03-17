@@ -1,0 +1,29 @@
+[package]
+name = "sebure-cli"
+version = "0.1.0"
+edition = "2021"
+description = "Command-line interface for SEBURE Blockchain"
+authors = ["SEBURE Team"]
+
+[dependencies]
+sebure-core = { path = "../core" }
+# CLI utilities
+clap = { version = "4.0", features = ["derive"] }
+tokio = { version = "1.21", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+log = "0.4"
+env_logger = "0.10"
+anyhow = "1.0"
+thiserror = "1.0"
+chrono = "0.4"
+colored = "2.0"        # Terminal colors
+indicatif = "0.17"     # Progress bars and spinners
+console = "0.15"       # Terminal utilities
+dialoguer = "0.10"     # Interactive user prompts
+config = "0.13"        # Configuration management
+hex = "0.4"           # Hex encoding/decoding
+
+[[bin]]
+name = "sebure"
+path = "src/main.rs"

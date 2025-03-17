@@ -1,0 +1,21 @@
+[package]
+name = "sebure-ffi"
+version = "0.1.0"
+edition = "2021"
+description = "FFI bindings for SEBURE Blockchain"
+authors = ["SEBURE Team"]
+
+[dependencies]
+sebure-core = { path = "../core" }
+# FFI utilities
+lazy_static = "1.4.0"
+libc = "0.2.120"
+log = "0.4"
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"           # Hex encoding/decoding
+
+[lib]
+name = "sebure_ffi"
+crate-type = ["cdylib", "staticlib"]
