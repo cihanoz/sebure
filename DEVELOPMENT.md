@@ -11,6 +11,14 @@ This guide provides detailed information for developers who want to contribute t
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
   ```
   
+- **Flutter**: Latest stable version for UI development
+  ```bash
+  # macOS/Linux
+  git clone https://github.com/flutter/flutter.git -b stable
+  export PATH="$PATH:`pwd`/flutter/bin"
+  flutter doctor
+  ```
+
 - **Git**: For version control
   ```bash
   # For Ubuntu/Debian

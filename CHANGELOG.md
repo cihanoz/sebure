@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consensus module with Delegated Proof-of-Stake (DPoS) implementation
 - CLI interface for basic blockchain operations
 - FFI bindings for integration with other languages
+- Flutter UI project structure for desktop and mobile interfaces
+- CI/CD pipeline using GitHub Actions for automated testing and building
 - Initial documentation (README, ARCHITECTURE, DEVELOPMENT, CONTRIBUTING)
 
 ### Changed

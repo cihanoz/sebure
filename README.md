@@ -25,7 +25,8 @@ The platform introduces innovative architectural features while maintaining simp
 - `/cli` - Command-line interface for blockchain interaction
 - `/ffi` - Foreign Function Interface (FFI) bindings for integration with other languages
 - `/docs` - Documentation resources
-- `/ui` - User interface components (planned)
+- `/ui` - User interface components built with Flutter for desktop and mobile
+- `/.github` - GitHub workflows for CI/CD automation
 
 ## Getting Started
 

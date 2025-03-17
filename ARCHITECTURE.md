@@ -104,12 +104,14 @@ SEBURE provides multiple user interfaces:
    - Validation controls
    - Resource monitoring
    - Integrated wallet functionality
+   - Implemented with Flutter for cross-platform support
 
 2. **Mobile UI** - Lightweight wallet interface
    - Account management
    - Transaction creation
    - Balance display
    - QR code support
+   - Implemented with Flutter for iOS and Android
 
 3. **CLI** - Command-line interface
    - Node control

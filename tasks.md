@@ -6,9 +6,9 @@ This document outlines the incremental development tasks for building the SEBURE
 
 ### Task 1.1: Project Setup & Architecture
 - [x] Setup Rust project structure for core blockchain components
-- [ ] Setup Dart/Flutter project for UI components
+- [x] Setup Dart/Flutter project for UI components
 - [x] Configure development environment with necessary dependencies
-- [ ] Create CI/CD pipeline for automated testing
+- [x] Create CI/CD pipeline for automated testing
 - [x] Design high-level system architecture and component interactions
 
 ### Task 1.2: Core Data Structures

@@ -1,0 +1,41 @@
+name: sebure_ui
+description: "SEBURE Blockchain UI components for desktop and mobile applications."
+publish_to: 'none'
+
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.8.0-133.0.dev
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2          # For state management as per PRD
+  fl_chart: ^0.65.0         # For performance visualization (specified in PRD)
+  qr_flutter: ^4.1.0        # For QR code generation
+  path_provider: ^2.1.2     # For managing app directory paths
+  shared_preferences: ^2.2.2 # For storing user preferences
+  local_auth: ^2.1.8        # For biometric authentication
+  http: ^1.1.0              # For API communications
+  ffi: ^2.1.0               # For FFI bindings to Rust code
+  json_annotation: ^4.8.1   # For JSON serialization
+  flutter_secure_storage: ^9.0.0  # For secure key storage
+  flutter_svg: ^2.0.9      # For SVG graphics
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+  mockito: ^5.4.4           # For mocking in tests
+  integration_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/

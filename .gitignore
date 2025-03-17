@@ -86,16 +86,30 @@ build/
 *.dll
 *.exe
 
-# Flutter/Dart specific (for future UI components)
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
-.pub-cache/
-.pub/
-build/
-pubspec.lock
-**/doc/api/
+# Flutter/Dart specific
+/ui/.dart_tool/
+/ui/.flutter-plugins
+/ui/.flutter-plugins-dependencies
+/ui/.packages
+/ui/.pub-cache/
+/ui/.pub/
+/ui/build/
+/ui/pubspec.lock
+/ui/**/doc/api/
+/ui/.metadata
+/ui/ios/Pods/
+/ui/ios/Flutter/ephemeral/
+/ui/ios/Flutter/Flutter.podspec
+/ui/macos/Flutter/ephemeral/
+/ui/macos/Pods/
+/ui/android/.gradle/
+/ui/android/app/debug/
+/ui/android/app/profile/
+/ui/android/app/release/
+/ui/linux/flutter/ephemeral/
+**/ios/Runner.xcworkspace/xcshareddata/
+**/ios/Runner.xcworkspace/xcuserdata/
+**/android/app/.cxx/
 
 # Database files
 *.db

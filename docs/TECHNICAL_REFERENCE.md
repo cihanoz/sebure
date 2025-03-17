@@ -233,6 +233,58 @@ _Note: Smart contract functionality is planned for future implementation._
 - Deterministic execution guarantees
 - Template-based contract creation
 
+## UI Framework
+
+### Flutter Components
+
+SEBURE UI is built using Flutter for cross-platform compatibility:
+
+- **State Management**: Provider pattern for reactive UI updates
+- **UI Architecture**: Clean architecture with separation of:
+  - Models: Data structures for UI state
+  - Services: Business logic and API communication
+  - Screens: Full-page UI components
+  - Widgets: Reusable UI components
+
+### Desktop Node Interface
+
+The desktop UI includes:
+
+- **Node Dashboard**: Visualizes node status and performance metrics
+- **Resource Monitoring**: Real-time charts for CPU, memory, network usage
+- **Validation Controls**: Toggle validation, set resource limits
+- **Network Statistics**: Connected peers, validation rewards
+- **Wallet Integration**: Full wallet functionality
+
+### Mobile Wallet Interface
+
+The mobile UI includes:
+
+- **Account Management**: Create, import, and manage accounts
+- **Transaction Interface**: Send and receive funds
+- **Balance Tracking**: View balance and transaction history
+- **QR Integration**: Generate/scan QR codes for addresses
+
+## CI/CD Pipeline
+
+SEBURE utilizes GitHub Actions for Continuous Integration and Deployment:
+
+### Rust Pipeline
+- **Testing**: Unit and integration tests for Rust code
+- **Formatting**: Verification of code style using rustfmt
+- **Linting**: Static analysis with clippy
+- **Building**: Cross-platform compilation of core components
+
+### Flutter Pipeline
+- **Testing**: Widget and integration tests for UI code
+- **Formatting**: Verification of Dart code style
+- **Static Analysis**: Flutter analyze for code quality
+- **Building**: Compilation for multiple platforms (Linux, macOS, Android, iOS)
+
+### Workflow Triggers
+- **Pull Requests**: Full testing and verification
+- **Main Branch**: Testing, building, and artifact generation
+
 ## API Reference
 
 ### RPC API
