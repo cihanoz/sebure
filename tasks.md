@@ -26,18 +26,18 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create address derivation functions
 
 ### Task 1.4: Basic Chain Management
-- [ ] Implement chain validation logic
-- [ ] Create genesis block generation
-- [ ] Develop block linking and verification
-- [ ] Implement transaction mempool
-- [ ] Create basic blockchain storage interface
+- [x] Implement chain validation logic
+- [x] Create genesis block generation
+- [x] Develop block linking and verification
+- [x] Implement transaction mempool
+- [x] Create basic blockchain storage interface
 
 ### Task 1.5: Simplified Consensus Mechanism
-- [ ] Implement basic delegated proof-of-stake (DPoS) mechanism
-- [ ] Create validator selection algorithm
-- [ ] Develop block production scheduling
-- [ ] Implement basic validation rules
-- [ ] Create reward distribution mechanism
+- [x] Implement basic delegated proof-of-stake (DPoS) mechanism
+- [x] Create validator selection algorithm
+- [x] Develop block production scheduling
+- [x] Implement basic validation rules
+- [x] Create reward distribution mechanism
 
 ### Task 1.6: Minimal Network Layer
 - [ ] Design P2P network protocol

@@ -7,6 +7,7 @@ use blake3::Hasher as Blake3Hasher;
 use std::fmt;
 use serde::{Serialize, Deserialize};
 use crate::types::{Result, Error};
+use crate::blockchain::{Block, Transaction};
 
 /// A cryptographic hash value
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
@@ -109,6 +110,136 @@ pub fn hash_serialize<T: serde::Serialize>(value: &T, algorithm: HashAlgorithm) 
     }
 }
 
+/// Hash a blockchain block
+///
+/// The block hash includes:
+/// - Block header
+/// - Transaction refs in shard data
+/// - Cross-shard receipts
+///
+/// Note: Validator set is not included in the hash to allow for validator set updates
+pub fn hash_block(block: &Block) -> Result<Vec<u8>> {
+    // In a full implementation, we would compute a Merkle tree of all components
+    // For now, just serialize and hash the block header and key data
+    
+    // Create a custom structure with only the parts we want to hash
+    #[derive(Serialize)]
+    struct BlockHashData<'a> {
+        header: &'a crate::blockchain::BlockHeader,
+        shard_data_tx_refs: Vec<Vec<Vec<u8>>>,  // Just the transaction refs from shard data
+        cross_shard_receipts: &'a Vec<crate::blockchain::CrossShardReceipt>,
+    }
+    
+    // Extract transaction refs from shard data
+    let shard_data_tx_refs: Vec<Vec<Vec<u8>>> = block.shard_data
+        .iter()
+        .map(|sd| sd.transactions.clone())
+        .collect();
+    
+    let hash_data = BlockHashData {
+        header: &block.header,
+        shard_data_tx_refs,
+        cross_shard_receipts: &block.cross_shard_receipts,
+    };
+    
+    // Use BLAKE3 for fast hashing of blocks
+    match hash_serialize(&hash_data, HashAlgorithm::Blake3) {
+        Ok(hash) => Ok(hash.0),
+        Err(e) => Err(e),
+    }
+}
+
+/// Hash a transaction
+///
+/// Creates a hash of the transaction that can be used as its unique identifier.
+/// The signature is excluded from the hash calculation to avoid circular dependency,
+/// as the signature is generated using the transaction hash.
+pub fn hash_transaction(tx: &Transaction) -> Result<Vec<u8>> {
+    // Create a custom structure with the transaction data minus the signature
+    #[derive(Serialize)]
+    struct TransactionHashData<'a> {
+        version: u8,
+        transaction_type: crate::types::TransactionType,
+        sender_public_key: &'a Vec<u8>,
+        sender_shard: crate::types::ShardId,
+        recipient_address: &'a Vec<u8>,
+        recipient_shard: crate::types::ShardId,
+        amount: u64,
+        fee: u32,
+        gas_limit: u32,
+        nonce: u64,
+        timestamp: crate::types::Timestamp,
+        data: &'a crate::blockchain::TransactionData,
+        dependencies: &'a Vec<Vec<u8>>,
+        execution_priority: crate::types::Priority,
+    }
+    
+    let hash_data = TransactionHashData {
+        version: tx.version,
+        transaction_type: tx.transaction_type,
+        sender_public_key: &tx.sender_public_key,
+        sender_shard: tx.sender_shard,
+        recipient_address: &tx.recipient_address,
+        recipient_shard: tx.recipient_shard,
+        amount: tx.amount,
+        fee: tx.fee,
+        gas_limit: tx.gas_limit,
+        nonce: tx.nonce,
+        timestamp: tx.timestamp,
+        data: &tx.data,
+        dependencies: &tx.dependencies,
+        execution_priority: tx.execution_priority,
+    };
+    
+    // Use SHA-256 for transaction hashing
+    match hash_serialize(&hash_data, HashAlgorithm::Sha256) {
+        Ok(hash) => Ok(hash.0),
+        Err(e) => Err(e),
+    }
+}
+
+/// Calculate the Merkle root of a list of hashes
+///
+/// This implements a simple Merkle tree to create a single root hash from
+/// a list of transaction or other hashes.
+pub fn calculate_merkle_root(hashes: &[Vec<u8>]) -> Result<Vec<u8>> {
+    if hashes.is_empty() {
+        // Empty Merkle tree has a zero hash
+        return Ok(vec![0; 32]);
+    }
+    
+    if hashes.len() == 1 {
+        // Just one hash, it is the root
+        return Ok(hashes[0].clone());
+    }
+    
+    // Recursive implementation of Merkle tree construction
+    let mut next_level = Vec::new();
+    
+    for chunk in hashes.chunks(2) {
+        if chunk.len() == 2 {
+            // Hash the pair
+            let mut combined = Vec::with_capacity(chunk[0].len() + chunk[1].len());
+            combined.extend_from_slice(&chunk[0]);
+            combined.extend_from_slice(&chunk[1]);
+            
+            let hash = blake3(&combined).0;
+            next_level.push(hash);
+        } else {
+            // Odd number of hashes, duplicate the last one
+            let mut combined = Vec::with_capacity(chunk[0].len() * 2);
+            combined.extend_from_slice(&chunk[0]);
+            combined.extend_from_slice(&chunk[0]);
+            
+            let hash = blake3(&combined).0;
+            next_level.push(hash);
+        }
+    }
+    
+    // Recursively calculate the next level
+    calculate_merkle_root(&next_level)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -189,5 +320,35 @@ mod tests {
         
         let hash = hash_serialize(&test_struct, HashAlgorithm::Sha256).unwrap();
         assert_eq!(hash.0.len(), 32);
+    }
+    
+    #[test]
+    fn test_merkle_root() {
+        // Test with empty list
+        let root = calculate_merkle_root(&[]).unwrap();
+        assert_eq!(root.len(), 32);
+        assert!(root.iter().all(|&b| b == 0));
+        
+        // Test with one hash
+        let hash1 = sha256(b"data1").0;
+        let root = calculate_merkle_root(&[hash1.clone()]).unwrap();
+        assert_eq!(root, hash1);
+        
+        // Test with two hashes
+        let hash1 = sha256(b"data1").0;
+        let hash2 = sha256(b"data2").0;
+        let root = calculate_merkle_root(&[hash1.clone(), hash2.clone()]).unwrap();
+        assert_ne!(root, hash1);
+        assert_ne!(root, hash2);
+        
+        // Test with multiple hashes
+        let hashes = vec![
+            sha256(b"data1").0,
+            sha256(b"data2").0,
+            sha256(b"data3").0,
+            sha256(b"data4").0,
+        ];
+        let root = calculate_merkle_root(&hashes).unwrap();
+        assert_eq!(root.len(), 32);
     }
 }

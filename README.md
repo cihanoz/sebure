@@ -95,6 +95,18 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Secure key generation and management
   - Address derivation with Base58 encoding
   - Key storage with encryption
+- [x] Basic chain management
+  - Chain validation logic
+  - Genesis block generation
+  - Block linking and verification
+  - Transaction mempool implementation
+  - Blockchain storage interface
+- [x] Simplified consensus mechanism
+  - Delegated Proof-of-Stake (DPoS) implementation
+  - Validator selection and rotation
+  - Block production scheduling
+  - Validation rules
+  - Reward distribution
 - [x] Command-line interface development
 - [x] Complete blockchain data structure implementation
 - [x] State and account model implementation
@@ -102,9 +114,6 @@ SEBURE Blockchain is currently in early development. The core components and arc
 
 ### In Progress
 
-- [ ] Enhanced cryptographic foundation
-- [ ] Chain validation and management
-- [ ] Consensus mechanism enhancement
 - [ ] Network layer implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).

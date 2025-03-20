@@ -101,8 +101,12 @@ Contains the fundamental blockchain components:
   - `block.rs`: Block structure implementation
   - `transaction.rs`: Transaction structure implementation
   - `state.rs`: Account and blockchain state model
-  - `mod.rs`: Module exports and blockchain management
+  - `mempool.rs`: Transaction mempool implementation
+  - `mod.rs`: Blockchain management and validation
 - `src/consensus/`: Consensus mechanism (DPoS)
+  - `dpos.rs`: Delegated Proof-of-Stake implementation
+  - `validator.rs`: Validator management and selection
+  - `mod.rs`: Consensus interface and common functionality
 - `src/crypto/`: Cryptographic utilities
   - `hash.rs`: Hashing utilities (SHA-256, BLAKE3)
   - `signature.rs`: Ed25519 signature generation and verification

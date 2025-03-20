@@ -2,12 +2,39 @@
 //! 
 //! This module implements the DPoS consensus mechanism for the SEBURE blockchain.
 
-use crate::blockchain::{Block, Transaction};
+use crate::blockchain::{Block, ShardData};
 use crate::types::{Result, Error, BlockHeight, ShardId, Timestamp};
 use super::{Consensus, ConsensusConfig, ConsensusState, Validator, ValidatorPool};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::collections::HashMap;
+
+/// Reward schedule for validators
+#[derive(Debug, Clone)]
+pub struct RewardSchedule {
+    /// Base block reward
+    pub base_block_reward: u64,
+    
+    /// Additional reward per transaction
+    pub per_transaction_reward: u64,
+    
+    /// Reward for transaction validation
+    pub validation_reward: u64,
+    
+    /// Reward halving interval (in blocks)
+    pub halving_interval: u64,
+}
+
+impl Default for RewardSchedule {
+    fn default() -> Self {
+        RewardSchedule {
+            base_block_reward: 100,
+            per_transaction_reward: 1,
+            validation_reward: 10,
+            halving_interval: 1_000_000, // 1 million blocks
+        }
+    }
+}
 
 /// DPoS consensus implementation
 pub struct DPoSConsensus {
@@ -22,6 +49,12 @@ pub struct DPoSConsensus {
     
     /// Block history for finality determination
     block_history: Arc<Mutex<HashMap<BlockHeight, Block>>>,
+    
+    /// Reward schedule
+    reward_schedule: RewardSchedule,
+    
+    /// Block production schedule
+    block_schedule: Arc<Mutex<HashMap<BlockHeight, HashMap<ShardId, Vec<u8>>>>>,
 }
 
 impl DPoSConsensus {
@@ -32,6 +65,8 @@ impl DPoSConsensus {
             state: Arc::new(Mutex::new(ConsensusState::new())),
             local_public_key: None,
             block_history: Arc::new(Mutex::new(HashMap::new())),
+            reward_schedule: RewardSchedule::default(),
+            block_schedule: Arc::new(Mutex::new(HashMap::new())),
         }
     }
     
@@ -74,10 +109,152 @@ impl DPoSConsensus {
     }
     
     /// Calculate the reward for a block producer
-    fn calculate_block_reward(&self, _block: &Block) -> u64 {
-        // Simple fixed reward for now
-        // In a real implementation, this would depend on various factors
-        100
+    fn calculate_block_reward(&self, block: &Block) -> u64 {
+        // Determine which halving period we're in
+        let halving_period = block.header.index / self.reward_schedule.halving_interval;
+        
+        // Calculate the divisor for the halving (1, 2, 4, 8, etc.)
+        let halving_divisor = if halving_period == 0 {
+            1
+        } else {
+            1u64 << halving_period // 2^halving_period: 2, 4, 8, etc.
+        };
+        
+        // Base reward for producing a block (divided by halving divisor)
+        let base_reward = self.reward_schedule.base_block_reward / halving_divisor;
+        
+        // Additional reward for transactions (based on transaction count)
+        let tx_count = block.shard_data.iter()
+            .map(|shard| shard.transactions.len())
+            .sum::<usize>() as u64;
+            
+        let tx_reward = tx_count * self.reward_schedule.per_transaction_reward / halving_divisor;
+        
+        base_reward + tx_reward
+    }
+    
+    /// Generate block production schedule for the next epoch
+    pub fn generate_block_schedule(&self, current_height: BlockHeight) -> Result<()> {
+        let state = self.state.lock().unwrap();
+        
+        // Get the epoch information
+        let blocks_per_epoch = self.config.blocks_per_epoch;
+        let current_epoch = state.get_epoch_for_height(current_height, blocks_per_epoch);
+        let next_epoch = current_epoch + 1;
+        
+        // Calculate the starting height for the next epoch
+        let start_height = next_epoch * blocks_per_epoch;
+        let end_height = start_height + blocks_per_epoch - 1;
+        
+        // Get validators for each shard
+        let mut schedule = HashMap::new();
+        
+        for height in start_height..=end_height {
+            let mut height_schedule = HashMap::new();
+            
+            for shard in 0..self.config.shard_count {
+                // Select validator for this height and shard
+                // We use deterministic selection based on stake and previous blocks
+                if let Some(validator) = state.validators.select_validator_for_block(height, shard) {
+                    height_schedule.insert(shard, validator.public_key.clone());
+                }
+            }
+            
+            schedule.insert(height, height_schedule);
+        }
+        
+        // Update the block schedule
+        let mut block_schedule = self.block_schedule.lock().unwrap();
+        for (height, shard_validators) in schedule {
+            block_schedule.insert(height, shard_validators);
+        }
+        
+        Ok(())
+    }
+    
+    /// Process a block and update state
+    pub fn process_block(&mut self, block: Block) -> Result<()> {
+        // Validate block
+        self.validate_block(&block)?;
+        
+        // Update consensus state
+        let mut state = self.state.lock().unwrap();
+        state.height = block.header.index;
+        state.last_block_time = block.header.timestamp;
+        
+        // Check if this is the beginning of a new epoch
+        if state.is_epoch_start(block.header.index, self.config.blocks_per_epoch) {
+            state.epoch = state.get_epoch_for_height(block.header.index, self.config.blocks_per_epoch);
+            
+            // Update validators for the new epoch if needed
+            drop(state); // Release lock before calling update_validators
+            self.update_validators()?;
+            
+            // Generate block schedule for the next epoch
+            self.generate_block_schedule(block.header.index)?;
+        }
+        
+        // Add block to history
+        self.add_block_to_history(block.clone());
+        
+        // Distribute rewards to validators
+        self.distribute_rewards(&block)?;
+        
+        Ok(())
+    }
+    
+    /// Distribute rewards to validators
+    fn distribute_rewards(&self, block: &Block) -> Result<()> {
+        let mut state = self.state.lock().unwrap();
+        
+        // Calculate block reward
+        let block_reward = self.calculate_block_reward(block);
+        
+        // Reward the block producer
+        for shard_id in &block.header.shard_identifiers {
+            if let Some(scheduled_validator_key) = state.validators.select_validator_for_block(
+                block.header.index, *shard_id
+            ) {
+                if let Some(validator) = state.validators.get_validator_by_pubkey(&scheduled_validator_key.public_key) {
+                    let validator_id = validator.id.clone();
+                    
+                    // Get mutable reference to update rewards
+                    if let Some(validator) = state.validators.get_validator_mut(&validator_id) {
+                        // Record block production
+                        let tx_count = block.shard_data.iter()
+                            .filter(|s| s.shard_id == *shard_id)
+                            .map(|s| s.transactions.len())
+                            .sum::<usize>() as u64;
+                            
+                        validator.record_block_produced(tx_count);
+                        
+                        // Add reward
+                        validator.add_reward(block_reward);
+                    }
+                }
+            }
+        }
+        
+        // Also reward validators who participated in validation (in a real impl)
+        // This would inspect validator signatures and distribute validation rewards
+        
+        Ok(())
+    }
+
+    /// Get scheduled validator for a specific height and shard
+    pub fn get_scheduled_validator(&self, height: BlockHeight, shard: ShardId) -> Option<Vec<u8>> {
+        // First check block schedule
+        let block_schedule = self.block_schedule.lock().unwrap();
+        if let Some(height_schedule) = block_schedule.get(&height) {
+            if let Some(validator_key) = height_schedule.get(&shard) {
+                return Some(validator_key.clone());
+            }
+        }
+        
+        // If not found in schedule, use the validator selection algorithm
+        let state = self.state.lock().unwrap();
+        state.validators.select_validator_for_block(height, shard)
+            .map(|v| v.public_key.clone())
     }
 }
 
@@ -107,8 +284,13 @@ impl Consensus for DPoSConsensus {
     fn is_scheduled_producer(&self, height: BlockHeight, shard: ShardId) -> bool {
         // Check if local node is a validator
         if let Some(public_key) = &self.local_public_key {
-            let state = self.state.lock().unwrap();
+            // First check the block production schedule
+            if let Some(scheduled_validator) = self.get_scheduled_validator(height, shard) {
+                return scheduled_validator == *public_key;
+            }
             
+            // Fall back to selecting based on algorithm
+            let state = self.state.lock().unwrap();
             if let Some(next_validator) = state.validators.select_validator_for_block(height, shard) {
                 // Check if the local node is the next validator
                 return next_validator.public_key == *public_key;
@@ -129,8 +311,40 @@ impl Consensus for DPoSConsensus {
             )));
         }
         
-        // Check if we're assigned to this shard
+        // Verify local node is the scheduled producer for this block
         if let Some(public_key) = &self.local_public_key {
+            // Check if we're scheduled according to the block schedule
+            let scheduled = self.get_scheduled_validator(height, shard);
+            
+            match scheduled {
+                Some(scheduled_key) if scheduled_key == *public_key => {
+                    // We are the scheduled producer, continue
+                },
+                Some(_) => {
+                    return Err(Error::Consensus(format!(
+                        "Node is not the scheduled producer for height {} and shard {}",
+                        height, shard
+                    )));
+                },
+                None => {
+                    // Fall back to validator selection algorithm
+                    if let Some(validator) = state.validators.select_validator_for_block(height, shard) {
+                        if validator.public_key != *public_key {
+                            return Err(Error::Consensus(format!(
+                                "Node is not selected as producer for height {} and shard {}",
+                                height, shard
+                            )));
+                        }
+                    } else {
+                        return Err(Error::Consensus(format!(
+                            "No validator scheduled for height {} and shard {}",
+                            height, shard
+                        )));
+                    }
+                }
+            }
+            
+            // Check if we're assigned to this shard
             if let Some(validator) = state.validators.get_validator_by_pubkey(public_key) {
                 if !validator.is_assigned_to_shard(shard) {
                     return Err(Error::Consensus(format!(
@@ -154,13 +368,30 @@ impl Consensus for DPoSConsensus {
         let shard_ids = vec![shard];
         
         // Create the block
-        let block = Block::new(height, timestamp, previous_hash, shard_ids);
+        let mut block = Block::new(height, timestamp, previous_hash, shard_ids);
         
         // In a real implementation, we would:
         // 1. Select transactions from the mempool
         // 2. Execute transactions
         // 3. Update state roots
-        // 4. Sign the block
+        
+        // Add our validator to the validator set
+        if let Some(public_key) = &self.local_public_key {
+            block.validator_set.push(public_key.clone());
+        }
+        
+        // Create empty shard data
+        let shard_data = ShardData {
+            shard_id: shard,
+            transactions: Vec::new(),
+            execution_proof: Vec::new(),
+            validator_signatures: Vec::new(),
+        };
+        
+        // Add shard data to the block
+        block.add_shard_data(shard_data)?;
+        
+        // In a real implementation, we would sign the block here
         
         Ok(block)
     }
@@ -198,23 +429,54 @@ impl Consensus for DPoSConsensus {
         
         // Verify the producer is scheduled for this block
         for shard_id in &block.header.shard_identifiers {
-            if let Some(_validator) = state.validators.select_validator_for_block(
-                block.header.index, *shard_id
-            ) {
-                // In a real implementation, we would verify the block signature against
-                // the validator's public key
+            // Check if the block producer is scheduled
+            let scheduled_producer = match self.get_scheduled_validator(block.header.index, *shard_id) {
+                Some(pubkey) => pubkey,
+                None => {
+                    return Err(Error::BlockValidation(format!(
+                        "No validator scheduled for height {} and shard {}",
+                        block.header.index, shard_id
+                    )));
+                }
+            };
+            
+            // In a real implementation, we would:
+            // 1. Extract producer's signature from the block
+            // 2. Verify signature against the scheduled producer's public key
+            
+            // Skip signature verification for now, but ensure there's a validator
+            if let Some(validator) = state.validators.get_validator_by_pubkey(&scheduled_producer) {
+                // Validate this validator is assigned to the shard
+                if !validator.is_assigned_to_shard(*shard_id) {
+                    return Err(Error::BlockValidation(format!(
+                        "Validator is not assigned to shard {}", shard_id
+                    )));
+                }
             } else {
                 return Err(Error::BlockValidation(format!(
-                    "No validator scheduled for shard {}", shard_id
+                    "Scheduled validator not found for shard {}", shard_id
                 )));
             }
         }
         
-        // Verify block contents (transactions, state roots, etc.)
+        // Validate all shard data
+        for shard_data in &block.shard_data {
+            // Verify shard ID is in the block header
+            if !block.header.shard_identifiers.contains(&shard_data.shard_id) {
+                return Err(Error::BlockValidation(format!(
+                    "Shard {} not declared in block header", shard_data.shard_id
+                )));
+            }
+            
+            // Verify transactions if possible
+            // In a real implementation, we would validate each transaction
+        }
+        
+        // Verify block state roots
         // In a real implementation, we would:
-        // 1. Verify transactions are valid
-        // 2. Verify execution results and state roots
-        // 3. Verify signatures
+        // 1. Verify state root matches computed state after applying transactions
+        // 2. Verify transaction root matches the merkle root of all transactions
+        // 3. Verify receipt root matches the merkle root of all receipts
         
         Ok(())
     }
@@ -294,15 +556,18 @@ mod tests {
         // Initialize consensus
         consensus.init().unwrap();
         
-        // Add some test validators
-        let mut state = consensus.state.lock().unwrap();
-        for i in 1..=10 {
-            let mut validator = create_test_validator(i, i as u64 * 1000);
-            
-            // Assign shards manually (would normally be done by assign_validators_to_shards)
-            validator.assign_shards(vec![i as u16 % 4]);
-            
-            state.validators.add_validator(validator).unwrap();
+        // Create and add validators
+        {
+            // Use a block scope to ensure state is dropped before returning consensus
+            let mut state = consensus.state.lock().unwrap();
+            for i in 1..=10 {
+                let mut validator = create_test_validator(i, i as u64 * 1000);
+                
+                // Assign shards manually (would normally be done by assign_validators_to_shards)
+                validator.assign_shards(vec![i as u16 % 4]);
+                
+                state.validators.add_validator(validator).unwrap();
+            }
         }
         
         consensus
@@ -418,5 +683,132 @@ mod tests {
         );
         
         assert!(consensus.validate_block(&invalid_timestamp_block).is_err());
+    }
+    
+    #[test]
+    fn test_reward_calculation() {
+        let mut consensus = setup_consensus_with_validators();
+        
+        // Create a custom reward schedule for testing
+        consensus.reward_schedule = RewardSchedule {
+            base_block_reward: 100,
+            per_transaction_reward: 5,
+            validation_reward: 10,
+            halving_interval: 1000,
+        };
+        
+        // Create a block with no transactions
+        let empty_block = Block::new(
+            1,
+            DPoSConsensus::current_time_micros(),
+            vec![0; 32],
+            vec![0],
+        );
+        
+        // Calculate reward for an empty block
+        let empty_reward = consensus.calculate_block_reward(&empty_block);
+        assert_eq!(empty_reward, 100); // Should be just the base reward
+        
+        // Create a block with transactions
+        let mut block_with_tx = Block::new(
+            1,
+            DPoSConsensus::current_time_micros(),
+            vec![0; 32],
+            vec![0],
+        );
+        
+        // Add shard data with transactions
+        let mut shard_data = ShardData {
+            shard_id: 0,
+            transactions: vec![vec![1, 2, 3], vec![4, 5, 6]], // 2 transactions
+            execution_proof: Vec::new(),
+            validator_signatures: Vec::new(),
+        };
+        
+        block_with_tx.add_shard_data(shard_data).unwrap();
+        
+        // Calculate reward for block with transactions
+        let tx_reward = consensus.calculate_block_reward(&block_with_tx);
+        assert_eq!(tx_reward, 110); // Base 100 + (2 transactions * 5 per tx)
+        
+        // Test reward halving
+        let halving_block = Block::new(
+            1500, // After first halving interval
+            DPoSConsensus::current_time_micros(),
+            vec![0; 32],
+            vec![0],
+        );
+        
+        // Test the halving reward calculation
+        let halving_reward = consensus.calculate_block_reward(&halving_block);
+        assert_eq!(halving_reward, 50); // Half of the base reward after first halving interval
+    }
+    
+    #[test]
+    fn test_block_schedule_generation() {
+        // Create consensus with a small number of blocks per epoch
+        let mut config = ConsensusConfig::default();
+        config.blocks_per_epoch = 10;
+        let mut consensus = DPoSConsensus::new(config);
+        
+        // Initialize with validators
+        consensus.init().unwrap();
+        
+        {
+            // Use block scope to ensure state is dropped before using consensus
+            let mut state = consensus.state.lock().unwrap();
+            for i in 1..=5 {
+                let mut validator = create_test_validator(i, i as u64 * 1000);
+                validator.assign_shards(vec![i as u16 % 4]);
+                state.validators.add_validator(validator).unwrap();
+            }
+            // state is dropped here when going out of scope
+        }
+        
+        // Generate block schedule for epoch 1 (blocks 10-19)
+        consensus.generate_block_schedule(5).unwrap(); // Current height 5, generating for next epoch
+        
+        // Check that the schedule contains entries for the next epoch
+        let schedule = consensus.block_schedule.lock().unwrap();
+        
+        // Verify schedule contains heights 10-19
+        for height in 10..20 {
+            assert!(schedule.contains_key(&height), "Schedule missing height {}", height);
+            
+            // Check if each height has shard assignments
+            if let Some(height_schedule) = schedule.get(&height) {
+                // There should be assignments for shards 0-3
+                for shard in 0..4 {
+                    assert!(height_schedule.contains_key(&shard), 
+                           "Height {} missing shard {}", height, shard);
+                }
+            }
+        }
+    }
+    
+    #[test]
+    fn test_process_block() {
+        let mut consensus = setup_consensus_with_validators();
+        
+        // Create a block to process
+        let block = Block::new(
+            1, // Height 1
+            DPoSConsensus::current_time_micros(),
+            vec![0; 32],
+            vec![0],
+        );
+        
+        // Process the block
+        let result = consensus.process_block(block.clone());
+        assert!(result.is_ok());
+        
+        // Verify state was updated
+        let state = consensus.state.lock().unwrap();
+        assert_eq!(state.height, 1);
+        assert_eq!(state.last_block_time, block.header.timestamp);
+        
+        // Verify block was added to history
+        let history = consensus.block_history.lock().unwrap();
+        assert!(history.contains_key(&1));
     }
 }

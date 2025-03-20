@@ -16,9 +16,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Secure key generation and management
   - Key storage with encryption
   - Address derivation and validation with Base58 encoding
+- Transaction mempool with:
+  - Transaction prioritization by fee and type
+  - Dependency tracking and management
+  - Automatic expiration and cleanup
+  - Shard-aware transaction organization
+- Enhanced blockchain core with:
+  - Chain validation logic for blocks and transactions
+  - Genesis block generation with customizable parameters
+  - Comprehensive block linking and verification
+  - Transaction lifecycle management 
+  - Cryptographic hash-based chain integrity verification
+- Delegated Proof-of-Stake (DPoS) consensus mechanism with:
+  - Validator selection algorithm based on stake and performance
+  - Epoch-based validator rotation for block production
+  - Block scheduling and production timing
+  - Validator pool management with shard assignments
+  - Transaction fee distribution and block rewards
+  - Reward halving mechanism for inflation control
 - Network module with peer management and message passing
-- Storage module with chain and state databases
-- Consensus module with Delegated Proof-of-Stake (DPoS) implementation
+- Storage module with chain and state databases including:
+  - Block and transaction persistence
+  - State database with account information
+  - Efficient lookup and retrieval mechanisms
 - CLI interface for basic blockchain operations
 - FFI bindings for integration with other languages
 - Flutter UI project structure for desktop and mobile interfaces

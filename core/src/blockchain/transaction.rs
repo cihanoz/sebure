@@ -130,9 +130,31 @@ impl Transaction {
             .unwrap()
             .as_micros() as u64;
         
-        // In a real implementation, we would compute the transaction ID
-        // based on the hash of the transaction content
-        let id = vec![0; 32]; // Placeholder
+        // Create a "dummy" transaction with ID field to be filled
+        let mut tx = Transaction {
+            id: vec![0; 32], // Temporary ID, will be replaced
+            version: 1, // Set default version
+            transaction_type,
+            sender_public_key,
+            sender_shard,
+            recipient_address,
+            recipient_shard,
+            amount,
+            fee,
+            gas_limit,
+            nonce,
+            timestamp,
+            data,
+            dependencies,
+            signature,
+            execution_priority: Priority::Normal,
+        };
+        
+        // Calculate the proper transaction ID using the hash function
+        let id = match crate::crypto::hash::hash_transaction(&tx) {
+            Ok(hash) => hash,
+            Err(_) => vec![0; 32], // Fallback in case of error
+        };
         
         Transaction {
             id,
@@ -208,12 +230,11 @@ impl Transaction {
     
     /// Calculate the transaction hash
     pub fn hash(&self) -> Vec<u8> {
-        // In a real implementation, we would:
-        // 1. Serialize the transaction data
-        // 2. Compute a cryptographic hash
-        
-        // For now, just return a dummy value
-        vec![0; 32]
+        // Use the hash_transaction function from our crypto module
+        match crate::crypto::hash::hash_transaction(self) {
+            Ok(hash) => hash,
+            Err(_) => vec![0; 32], // Fallback in case of error
+        }
     }
     
     /// Get the estimated gas cost

@@ -35,17 +35,39 @@ SEBURE Blockchain uses a multi-layered, modular architecture to achieve its perf
 The Blockchain component is responsible for managing blockchain data structures, including blocks and transactions. It handles:
 
 - Block creation, validation, and linking
-- Transaction validation and execution
+- Transaction validation, execution, and lifecycle management
+- Genesis block generation with customizable parameters
 - Block and transaction serialization/deserialization
-- Chain state management
+- Chain state management and integrity verification
+- Transaction mempool management
 
-Key data structures (all fully implemented):
+Key components and data structures (all fully implemented):
+
+#### Core Blockchain Structures
 - Block: Container for transactions with metadata, including block header, shard data, cross-shard receipts, and validator set
 - Transaction: Record of value transfer or smart contract execution with comprehensive metadata
 - Receipt: Result of transaction execution
 - Account: User or contract on the blockchain with balance, nonce, and state
 - ShardState: State of a specific shard including accounts and transactions
 - GlobalState: Combined state of all shards with cross-shard coordination
+
+#### Transaction Mempool
+The mempool manages pending transactions before they're included in blocks:
+- Priority-based transaction queuing using fee, type, and timestamp
+- Dependency tracking for transactions that rely on others
+- Automatic transaction expiration and cleanup
+- Shard-aware transaction organization for efficient block creation
+- Transaction validation and verification before acceptance
+
+#### Chain Management
+- Block validation with multiple integrity checks:
+  - Height sequencing and previous hash validation
+  - Timestamp validation and ordering
+  - Transaction verification and validation
+  - Cryptographic hash-based integrity checks
+- Genesis block creation with configurable initial state
+- Secure block linking using cryptographic hashes
+- Block retrieval and chain traversal utilities
 
 ### Consensus Component
 
@@ -56,10 +78,41 @@ The Consensus component implements the Delegated Proof-of-Stake (DPoS) mechanism
 - Finality determination
 - Reward distribution
 
+#### Delegated Proof-of-Stake Implementation
+
+The DPoS mechanism includes the following features:
+
+- **Validator Pool Management**:
+  - Stake-weighted validator selection
+  - Performance-based validator ranking
+  - Shard assignment for specialized validation
+  - Validator rotation to ensure fair participation
+
+- **Block Production Scheduling**:
+  - Epoch-based validator scheduling
+  - Deterministic block producer selection
+  - Block timing control with configurable intervals
+  - Schedule generation for upcoming epochs
+
+- **Reward System**:
+  - Base block rewards for block producers
+  - Transaction fee distribution for included transactions
+  - Validation rewards for transaction verification
+  - Reward halving mechanism to control inflation over time
+
+- **Block Validation**:
+  - Comprehensive validation rules for new blocks
+  - Timestamp verification to prevent future block attacks
+  - Height sequence verification
+  - Validator authorization checks
+  - Shard assignment validation
+
 Key entities:
-- Validators: Nodes responsible for producing and validating blocks
-- Validator Pool: Collection of validators for a specific shard or time period
-- Consensus State: Current state of the consensus process
+- **Validators**: Nodes responsible for producing and validating blocks, with stake, performance metrics, and shard assignments
+- **Validator Pool**: Collection of validators with selection algorithms and stake tracking
+- **Consensus State**: Current state of the consensus process including height, epoch, and active validators
+- **Block Schedule**: Mapping of future block heights to assigned validators for each shard
+- **Reward Schedule**: Configuration for block rewards, transaction fees, and halving intervals
 
 ### Network Component
 
