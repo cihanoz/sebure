@@ -213,6 +213,24 @@ The Foreign Function Interface (FFI) layer bridges the Rust core implementation 
 - Exposes core functionality to non-Rust applications
 - Handles type conversion between languages
 - Manages resource lifecycle for cross-language objects
+- Provides error handling and resource cleanup
+
+#### FFI Bindings
+
+The FFI layer includes comprehensive bindings that expose the following functionality:
+
+- Core blockchain initialization and shutdown
+- Node startup and management
+- Storage initialization and access
+- Network configuration and control
+- Account creation and management
+- Balance retrieval and transaction operations
+- Resource usage monitoring
+
+All FFI functions follow a consistent pattern:
+- Clear error handling with well-defined error codes
+- Proper memory management for cross-language communication
+- Safe access to Rust data structures from Dart
 
 ### User Interfaces
 
@@ -224,6 +242,13 @@ SEBURE provides multiple user interfaces:
    - Resource monitoring
    - Integrated wallet functionality
    - Implemented with Flutter for cross-platform support
+
+   **Desktop Application Framework Components**:
+   - **Application Lifecycle Management**: Handles startup, shutdown, and state transitions
+   - **Configuration Storage System**: Persists user preferences and application settings
+   - **Plugin Architecture**: Enables extending functionality without modifying core code
+   - **Resource Management**: Controls and monitors system resource usage
+   - **Service Layer**: Provides abstraction over FFI for Flutter UI components
 
 2. **Mobile UI** - Lightweight wallet interface
    - Account management
@@ -237,6 +262,21 @@ SEBURE provides multiple user interfaces:
    - Wallet operations
    - Blockchain exploration
    - Diagnostic tools
+
+### Plugin Architecture
+
+The plugin architecture enables extending the desktop application with additional functionality:
+
+- **Plugin Loading System**: Discovers and loads plugins at runtime
+- **Plugin Manifest**: Describes plugin metadata (ID, name, version, dependencies)
+- **Plugin Lifecycle Management**: Controlled initialization and shutdown
+- **Plugin API**: Well-defined interfaces for extending application functionality
+
+Plugins can provide:
+- UI components for dashboard integration
+- Additional blockchain functionality
+- Integration with external services
+- Custom analytics and monitoring
 
 ## Cross-Cutting Concerns
 

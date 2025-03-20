@@ -144,6 +144,25 @@ Command-line interface for interacting with the blockchain:
 Foreign Function Interface for integration with other languages:
 
 - `src/lib.rs`: FFI entry point and bindings
+  - Core blockchain interface
+  - Network management
+  - Storage access
+  - Account operations
+  - Error handling utilities
+
+### UI Components (`/ui`)
+
+Flutter-based user interfaces for desktop and mobile:
+
+- `/lib`: Dart code for the UI
+  - `main.dart`: Application entry point
+  - `/src/ffi`: FFI bindings to the Rust core
+  - `/src/models`: Data models for the UI
+  - `/src/screens`: Application screens
+  - `/src/services`: Backend services
+  - `/src/plugin`: Plugin system architecture
+  - `/src/utils`: Utility functions
+  - `/src/widgets`: Reusable UI components
 
 ## Coding Standards
 
@@ -183,6 +202,18 @@ Foreign Function Interface for integration with other languages:
 3. **Configuration**:
    - Use structs with builder patterns for configurable components
    - Provide sensible defaults
+
+4. **UI Design Pattern**:
+   - Utilize Provider for state management
+   - Separate UI from business logic through services
+   - Use dependency injection for service management
+   - Follow the Material Design guidelines
+
+5. **FFI Architecture**:
+   - Create well-defined bindings using FFI
+   - Handle memory management carefully
+   - Use specific error codes for cross-language error handling
+   - Wrap unsafe FFI calls in safe Dart interfaces
 
 ## Testing Practices
 
@@ -244,6 +275,77 @@ The project includes a comprehensive testing framework for the Delegated Proof-o
 - Write benchmarks for performance-critical code
 - Use the `criterion` crate for benchmarking
 - Monitor performance changes over time
+
+## Flutter UI Development
+
+### Desktop Application Framework
+
+The desktop application framework consists of several key components:
+
+1. **FFI Layer**:
+   - **`sebure_ffi.dart`**: Provides type-safe bindings to the Rust code
+   - Error handling with specific error codes
+   - Resource management for memory-safe FFI calls
+
+2. **Service Layer**:
+   - **`BlockchainService`**: Interface to core blockchain features
+   - **`ConfigService`**: Persistent storage for application settings
+   - Singleton pattern for shared service instances
+   - Asynchronous APIs with proper error handling
+
+3. **Plugin Architecture**:
+   - **`PluginManager`**: Handles plugin discovery, loading, and lifecycle
+   - **`PluginManifest`**: Metadata for plugins (ID, version, dependencies)
+   - **`SeburePlugin`**: Base class for all plugins
+   - Plugin installation/uninstallation management
+
+4. **Application Lifecycle**:
+   - Structured initialization sequence
+   - Resource cleanup on shutdown
+   - State management throughout application lifecycle
+   - Error handling and recovery
+
+### Working with FFI
+
+When extending or modifying the FFI layer:
+
+1. Add Rust functions in `ffi/src/lib.rs` with `#[no_mangle]` and appropriate C-compatible types
+2. Update `ui/lib/src/ffi/sebure_ffi.dart` to add the corresponding Dart bindings
+3. Create type-safe wrappers in service classes that handle errors and memory management
+4. Use the services in the UI rather than calling FFI directly
+
+### Plugin Development
+
+To create a new plugin:
+
+1. Create a class that extends `SeburePlugin`
+2. Implement the `initialize()` and `shutdown()` methods
+3. Create a manifest JSON file with plugin metadata
+4. Install the plugin using the `PluginManager.installPlugin()` method
+
+Example plugin structure:
+```
+my-plugin/
+  |- manifest.json
+  |- main.dart
+  |- assets/
+```
+
+### Configuration Management
+
+The configuration system provides:
+
+1. Persistent storage of application settings
+2. Type-safe access to configuration values
+3. Default values for first-time initialization
+4. Advanced configuration with JSON for complex structures
+
+When adding new settings:
+
+1. Add keys in the `ConfigService` class
+2. Create appropriate getters and setters
+3. Add default values in the `_setDefaultsIfNeeded` method
+4. Update UI to use the new configuration options
 
 ## Development Workflow
 

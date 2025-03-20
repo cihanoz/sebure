@@ -19,6 +19,7 @@ dependencies:
   local_auth: ^2.1.8        # For biometric authentication
   http: ^1.1.0              # For API communications
   ffi: ^2.1.0               # For FFI bindings to Rust code
+  path: ^1.8.3              # For path manipulation
   json_annotation: ^4.8.1   # For JSON serialization
   flutter_secure_storage: ^9.0.0  # For secure key storage
   flutter_svg: ^2.0.9      # For SVG graphics

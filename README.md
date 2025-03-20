@@ -122,10 +122,16 @@ SEBURE Blockchain is currently in early development. The core components and arc
 - [x] Complete blockchain data structure implementation
 - [x] State and account model implementation
 - [x] Serialization/deserialization utilities
+- [x] Desktop application framework
+  - Flutter desktop application structure
+  - Rust-Dart FFI bindings
+  - Application lifecycle management
+  - Configuration storage system
+  - Plugin architecture for extensibility
 
 ### In Progress
 
-- [ ] Desktop application framework development
+- [ ] Background validation service implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).
 

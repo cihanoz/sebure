@@ -57,11 +57,11 @@ This document outlines the incremental development tasks for building the SEBURE
 ## Milestone 2: Node Architecture & Basic Wallet
 
 ### Task 2.1: Desktop Application Framework
-- [ ] Setup Flutter desktop application structure
-- [ ] Create Rust-Dart FFI bindings for core blockchain integration
-- [ ] Implement application lifecycle management
-- [ ] Create configuration storage system
-- [ ] Develop plugin architecture for extensibility
+- [x] Setup Flutter desktop application structure
+- [x] Create Rust-Dart FFI bindings for core blockchain integration
+- [x] Implement application lifecycle management
+- [x] Create configuration storage system
+- [x] Develop plugin architecture for extensibility
 
 ### Task 2.2: Background Validation Service
 - [ ] Implement background service for transaction validation
