@@ -40,11 +40,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create reward distribution mechanism
 
 ### Task 1.6: Minimal Network Layer
-- [ ] Design P2P network protocol
-- [ ] Implement node discovery mechanism
-- [ ] Create basic message passing between nodes
-- [ ] Develop block propagation mechanism
-- [ ] Implement transaction broadcasting
+- [x] Design P2P network protocol
+- [x] Implement node discovery mechanism
+- [x] Create basic message passing between nodes
+- [x] Develop block propagation mechanism
+- [x] Implement transaction broadcasting
 
 ### Task 1.7: Simple Command-Line Interface
 - [ ] Create CLI node implementation for development testing

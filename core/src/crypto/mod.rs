@@ -3,7 +3,7 @@
 //! This module implements cryptographic utilities for the SEBURE blockchain,
 //! including hashing, signatures, key generation, address derivation, and secure key storage.
 
-mod hash;
+pub mod hash;
 pub mod signature;
 pub mod address;
 pub mod keystore;
@@ -14,6 +14,8 @@ pub use hash::hash_data;
 pub use hash::HashAlgorithm;
 pub use hash::sha256;
 pub use hash::blake3;
+pub use hash::hash_block;
+pub use hash::hash_transaction;
 pub use signature::KeyPair;
 pub use signature::Signature;
 pub use signature::sign;

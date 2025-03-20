@@ -123,10 +123,51 @@ The Network component enables communication between nodes in the blockchain netw
 - Block and transaction propagation
 - Network health monitoring
 
-Key concepts:
-- Peers: Other nodes in the network
-- Messages: Structured data exchanged between nodes
-- Gossip Protocol: Efficient information dissemination mechanism
+The network layer consists of several subcomponents:
+
+#### Message Protocol
+- Structured message format with metadata and payloads
+- Message types for different communication purposes:
+  - Block announcements and transfers
+  - Transaction broadcasting and batching
+  - Peer discovery and exchange
+  - Validator handshakes
+  - Network health checks
+- Binary serialization for efficient network transport
+- Message verification with checksums and signatures
+- Prioritization system for different message types
+
+#### Peer Discovery
+- Multiple discovery methods:
+  - Manual configuration (bootstrap peers)
+  - DNS seed nodes for initial network connection
+  - Peer exchange protocol for node sharing
+  - Local network discovery
+- Configurable discovery parameters with rate limiting
+- Peer filtering and validation
+- Maximum peer count management
+
+#### Transport Layer
+- TCP-based reliable transport
+- Connection establishment and management
+- Error handling and timeout mechanisms
+- Message sending with size checks and serialization
+- Message receiving with proper deserialization
+- Network address management
+
+#### Node Communication
+- Block announcement and propagation system
+- Transaction broadcasting with batching
+- Bloom filter support for transaction announcements
+- Efficient propagation using selective relay
+- Peer tracking to prevent redundant transfers
+- Rate limiting to prevent network flooding
+
+Key entities:
+- Message: Structured data packet with headers and payload
+- Peer: Connection to another node with tracking information
+- Network: Main interface for network operations
+- Protocol: Defines communication standards and handshakes
 
 ### Storage Component
 

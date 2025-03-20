@@ -6,7 +6,7 @@ use crate::types::{ShardId, Priority};
 use serde::{Serialize, Deserialize};
 
 /// Network message types
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
 pub enum MessageType {
     /// Block announcement
     BlockAnnouncement,

@@ -114,6 +114,13 @@ Contains the fundamental blockchain components:
   - `keystore.rs`: Secure key storage with encryption
   - `mod.rs`: Module exports and utility functions
 - `src/network/`: P2P networking
+  - `mod.rs`: Network module coordination and API
+  - `message.rs`: Network message definition and serialization
+  - `protocol.rs`: P2P network protocol implementation
+  - `peer.rs`: Peer connection management
+  - `discovery.rs`: Peer discovery mechanisms
+  - `transport.rs`: Message transport layer
+  - `node_communication.rs`: Block and transaction broadcasting
 - `src/storage/`: Blockchain data storage
   - `chain_store.rs`: Storage for blockchain data
   - `state_db.rs`: State database for account balances and contract state
@@ -123,6 +130,7 @@ Contains the fundamental blockchain components:
 - `src/lib.rs`: Main library entry point
 - `src/bin/`: Binary executables
   - `core_test.rs`: Test utility demonstrating core data structures
+  - `network_test.rs`: Test utility for network components
 
 ### CLI Crate (`/cli`)
 

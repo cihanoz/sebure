@@ -20,7 +20,7 @@ pub type ShardId = u16;
 pub type Timestamp = u64;
 
 /// Priority levels for network messages and transactions
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Priority {
     /// Low priority
     Low,
@@ -112,6 +112,9 @@ pub enum Error {
     /// Serialization error
     Serialization(String),
     
+    /// Deserialization error
+    Deserialization(String),
+    
     /// Cryptographic error
     Crypto(String),
     
@@ -148,6 +151,7 @@ impl fmt::Display for Error {
         match self {
             Error::Io(e) => write!(f, "IO error: {}", e),
             Error::Serialization(e) => write!(f, "Serialization error: {}", e),
+            Error::Deserialization(e) => write!(f, "Deserialization error: {}", e),
             Error::Crypto(e) => write!(f, "Cryptographic error: {}", e),
             Error::Validation(e) => write!(f, "Validation error: {}", e),
             Error::Network(e) => write!(f, "Network error: {}", e),
@@ -173,6 +177,12 @@ impl From<io::Error> for Error {
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
         Error::Serialization(error.to_string())
+    }
+}
+
+impl From<bincode::Error> for Error {
+    fn from(error: bincode::Error) -> Self {
+        Error::Deserialization(error.to_string())
     }
 }
 
@@ -207,35 +217,4 @@ impl Default for NetworkConfig {
     }
 }
 
-/// Network implementation
-pub struct Network {
-    /// Network configuration
-    config: NetworkConfig,
-}
-
-impl Network {
-    /// Create a new network
-    pub fn new(config: NetworkConfig) -> Self {
-        Network {
-            config,
-        }
-    }
-    
-    /// Start the network
-    pub fn start(&self) -> Result<()> {
-        // In a real implementation, this would start the network service
-        Ok(())
-    }
-    
-    /// Stop the network
-    pub fn stop(&self) -> Result<()> {
-        // In a real implementation, this would stop the network service
-        Ok(())
-    }
-    
-    /// Get the number of connected peers
-    pub fn peer_count(&self) -> usize {
-        // In a real implementation, this would return the actual count
-        0
-    }
-}
+// Network implementation moved to network module

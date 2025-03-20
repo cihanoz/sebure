@@ -34,7 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Validator pool management with shard assignments
   - Transaction fee distribution and block rewards
   - Reward halving mechanism for inflation control
-- Network module with peer management and message passing
+- Complete P2P network layer implementation with:
+  - Structured message format with various message types
+  - Efficient peer discovery with multiple methods (manual, DNS seeds, peer exchange)
+  - Reliable TCP-based transport for message passing between nodes
+  - Block announcement and propagation system
+  - Transaction broadcasting with batching support
+  - Peer management with connection tracking
 - Storage module with chain and state databases including:
   - Block and transaction persistence
   - State database with account information

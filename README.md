@@ -107,6 +107,12 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Block production scheduling
   - Validation rules
   - Reward distribution
+- [x] Minimal network layer
+  - P2P network protocol design
+  - Node discovery mechanism
+  - Message passing between nodes
+  - Block propagation
+  - Transaction broadcasting
 - [x] Command-line interface development
 - [x] Complete blockchain data structure implementation
 - [x] State and account model implementation
@@ -114,7 +120,7 @@ SEBURE Blockchain is currently in early development. The core components and arc
 
 ### In Progress
 
-- [ ] Network layer implementation
+- [ ] Simple command-line interface for node operation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).
 
