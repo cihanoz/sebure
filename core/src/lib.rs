@@ -11,15 +11,18 @@ pub mod crypto;
 pub mod network;
 pub mod storage;
 pub mod types;
+pub mod utils;
 
 // Re-exports for commonly used types
 pub use blockchain::Block;
 pub use blockchain::Transaction;
+pub use blockchain::{Account, AccountType, GlobalState};
 pub use crypto::Hash;
 pub use types::Result;
 pub use consensus::{Consensus, ConsensusConfig};
 pub use storage::{Storage, StorageConfig};
 pub use network::{Network, NetworkConfig};
+pub use utils::{serialize, deserialize, to_json, from_json, SerializationFormat};
 
 /// Library version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

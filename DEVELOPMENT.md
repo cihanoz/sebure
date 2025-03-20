@@ -98,12 +98,22 @@ The SEBURE Blockchain codebase is organized into several crates:
 Contains the fundamental blockchain components:
 
 - `src/blockchain/`: Block and transaction implementation
+  - `block.rs`: Block structure implementation
+  - `transaction.rs`: Transaction structure implementation
+  - `state.rs`: Account and blockchain state model
+  - `mod.rs`: Module exports and blockchain management
 - `src/consensus/`: Consensus mechanism (DPoS)
 - `src/crypto/`: Cryptographic utilities
 - `src/network/`: P2P networking
 - `src/storage/`: Blockchain data storage
+  - `chain_store.rs`: Storage for blockchain data
+  - `state_db.rs`: State database for account balances and contract state
 - `src/types/`: Common types and utilities
+- `src/utils/`: Utility functions
+  - `serialization.rs`: Serialization/deserialization utilities
 - `src/lib.rs`: Main library entry point
+- `src/bin/`: Binary executables
+  - `core_test.rs`: Test utility demonstrating core data structures
 
 ### CLI Crate (`/cli`)
 

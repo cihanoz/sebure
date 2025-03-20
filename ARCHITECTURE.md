@@ -39,10 +39,13 @@ The Blockchain component is responsible for managing blockchain data structures,
 - Block and transaction serialization/deserialization
 - Chain state management
 
-Key data structures:
-- Block: Container for transactions with metadata
-- Transaction: Record of value transfer or smart contract execution
+Key data structures (all fully implemented):
+- Block: Container for transactions with metadata, including block header, shard data, cross-shard receipts, and validator set
+- Transaction: Record of value transfer or smart contract execution with comprehensive metadata
 - Receipt: Result of transaction execution
+- Account: User or contract on the blockchain with balance, nonce, and state
+- ShardState: State of a specific shard including accounts and transactions
+- GlobalState: Combined state of all shards with cross-shard coordination
 
 ### Consensus Component
 
@@ -84,6 +87,8 @@ The Storage component provides persistent data storage for the blockchain. It ha
 Key components:
 - Chain Store: Storage for blockchain data (blocks, transactions)
 - State DB: Storage for current state (account balances, smart contract data)
+- Account storage: Management of account state including balances, nonces, and contract code
+- Shard state management: Coordination of state across multiple shards
 
 ## Interface Layers
 
@@ -136,6 +141,14 @@ A common types system provides:
 - Common blockchain types (BlockHeight, ShardId, etc.)
 - Serialization traits
 - Utility functions
+
+### Serialization
+
+Robust serialization capabilities support multiple formats:
+- Binary serialization using bincode (efficient for network transmission)
+- JSON serialization (human-readable for debugging and external interfaces)
+- Custom binary formats (optimized for specific data structures)
+- Size calculation for optimizing storage and network usage
 
 ## Advanced Architecture Features
 

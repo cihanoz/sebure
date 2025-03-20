@@ -91,13 +91,16 @@ SEBURE Blockchain is currently in early development. The core components and arc
 - [x] Core blockchain data structures
 - [x] Basic cryptography implementation
 - [x] Command-line interface development
+- [x] Complete blockchain data structure implementation
+- [x] State and account model implementation
+- [x] Serialization/deserialization utilities
 
 ### In Progress
 
-- [ ] Full core data structure implementation
 - [ ] Enhanced cryptographic foundation
 - [ ] Chain validation and management
 - [ ] Consensus mechanism enhancement
+- [ ] Network layer implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).
 

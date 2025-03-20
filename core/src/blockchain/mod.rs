@@ -5,6 +5,7 @@
 
 mod block;
 mod transaction;
+mod state;
 
 // Re-export main types
 pub use block::Block;
@@ -12,6 +13,7 @@ pub use block::BlockHeader;
 pub use block::ShardData;
 pub use transaction::Transaction;
 pub use transaction::Receipt;
+pub use state::{Account, AccountType, ShardState, GlobalState};
 
 use crate::types::{Result, Error};
 

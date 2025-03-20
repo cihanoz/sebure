@@ -12,11 +12,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Design high-level system architecture and component interactions
 
 ### Task 1.2: Core Data Structures
-- [ ] Implement Block structure as defined in PRD section 8.1.1
-- [ ] Implement Transaction structure as defined in PRD section 8.1.2
-- [ ] Develop serialization/deserialization for blockchain data structures
-- [ ] Create blockchain state data model
-- [ ] Design and implement account model
+- [x] Implement Block structure as defined in PRD section 8.1.1
+- [x] Implement Transaction structure as defined in PRD section 8.1.2
+- [x] Develop serialization/deserialization for blockchain data structures
+- [x] Create blockchain state data model
+- [x] Design and implement account model
 
 ### Task 1.3: Cryptographic Foundation
 - [ ] Implement Ed25519 signature generation and verification
