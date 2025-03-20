@@ -5,17 +5,30 @@
 
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_uint, c_ulonglong};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex, RwLock};
 use lazy_static::lazy_static;
-use sebure_core::{self, Consensus, ConsensusConfig, Network, NetworkConfig, Storage, StorageConfig};
+use sebure_core::{self, Blockchain, BlockchainConfig, Consensus, ConsensusConfig, Network, NetworkConfig, Storage, StorageConfig};
+
+// Include the validation bridge module
+mod validation_bridge;
 
 // Global instances for the FFI layer
 lazy_static! {
     static ref STORAGE: Mutex<Option<Storage>> = Mutex::new(None);
     static ref NETWORK: Mutex<Option<Network>> = Mutex::new(None);
+    static ref BLOCKCHAIN: Mutex<Option<Arc<RwLock<Blockchain>>>> = Mutex::new(None);
     // To make the Consensus trait usable with Send and Sync, we need to be more careful with it
     // For now, just comment it out until we properly implement the Send trait for Consensus
     // static ref CONSENSUS: Mutex<Option<Box<dyn Consensus>>> = Mutex::new(None);
+}
+
+// Helper function to get blockchain instance for validation service
+// This is used internally by the validation bridge
+fn get_blockchain() -> Option<Arc<RwLock<Blockchain>>> {
+    match BLOCKCHAIN.lock() {
+        Ok(lock) => lock.clone(),
+        Err(_) => None,
+    }
 }
 
 /// Error codes for FFI functions
@@ -37,6 +50,8 @@ pub enum ErrorCode {
     AlreadyInitialized = 6,
     /// Not initialized
     NotInitialized = 7,
+    /// Internal error
+    InternalError = 8,
     /// Unknown error
     Unknown = 99,
 }
@@ -58,6 +73,31 @@ pub unsafe extern "C" fn sebure_init() -> ErrorCode {
     match sebure_core::init() {
         Ok(_) => ErrorCode::Success,
         Err(_) => ErrorCode::Unknown,
+    }
+}
+
+/// Initialize the blockchain with default configuration
+/// 
+/// # Safety
+/// 
+/// This function is unsafe because it modifies global state.
+#[no_mangle]
+pub unsafe extern "C" fn sebure_blockchain_init() -> ErrorCode {
+    let mut blockchain_lock = match BLOCKCHAIN.lock() {
+        Ok(lock) => lock,
+        Err(_) => return ErrorCode::Unknown,
+    };
+
+    if blockchain_lock.is_some() {
+        return ErrorCode::AlreadyInitialized;
+    }
+    
+    match Blockchain::new() {
+        Ok(blockchain) => {
+            *blockchain_lock = Some(Arc::new(RwLock::new(blockchain)));
+            ErrorCode::Success
+        },
+        Err(_) => ErrorCode::InternalError,
     }
 }
 

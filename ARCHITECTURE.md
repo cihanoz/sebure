@@ -30,6 +30,40 @@ SEBURE Blockchain uses a multi-layered, modular architecture to achieve its perf
 
 ## Core Layer Components
 
+### Validation Service
+
+The validation service provides background transaction processing and resource management:
+
+- **Task Scheduling System**:
+  - Priority-based queuing for different transaction types
+  - Task batching for efficient processing
+  - Resource-aware execution with CPU and memory limits
+  - Adaptive processing based on system load
+
+- **Service Architecture**:
+  - Multi-threaded design with main service thread and health monitoring
+  - Controlled resource utilization with configurable limits
+  - Time-sliced processing to maintain responsiveness
+  - Automatic recovery from errors with failure tracking
+
+- **Statistics and Monitoring**:
+  - Comprehensive performance metrics collection
+  - Real-time resource usage tracking (CPU, memory)
+  - Transaction processing statistics
+  - Block validation metrics
+
+- **FFI Integration**:
+  - Secure communication between Rust core and Dart UI
+  - Resource cleanup and management across language boundaries
+  - Asynchronous operation status reporting
+  - Error handling and recovery coordinated between languages
+
+- **User Interface**:
+  - Configuration dashboard for service parameters
+  - Real-time statistics visualization
+  - Status monitoring with visual indicators
+  - Manual control options (start, stop, pause, resume)
+
 ### Testing Framework
 
 The system includes a comprehensive testing framework for validating the correctness of core components:
@@ -249,6 +283,13 @@ SEBURE provides multiple user interfaces:
    - **Plugin Architecture**: Enables extending functionality without modifying core code
    - **Resource Management**: Controls and monitors system resource usage
    - **Service Layer**: Provides abstraction over FFI for Flutter UI components
+   
+   **Validation Management Interface**:
+   - Validation service status dashboard with real-time indicators
+   - Configuration controls for CPU, memory, and processing parameters
+   - Task queue monitoring and management
+   - Service performance statistics visualization
+   - Manual service control options (start, stop, pause, resume)
 
 2. **Mobile UI** - Lightweight wallet interface
    - Account management

@@ -128,10 +128,17 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Application lifecycle management
   - Configuration storage system
   - Plugin architecture for extensibility
+- [x] Background validation service
+  - Priority-based task scheduling system
+  - Resource-controlled transaction validation
+  - Inter-Process Communication (IPC) via FFI
+  - Automatic service recovery with health monitoring
+  - Comprehensive service diagnostics and statistics
+  - UI for configuration and management
 
 ### In Progress
 
-- [ ] Background validation service implementation
+- [ ] State database implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).
 

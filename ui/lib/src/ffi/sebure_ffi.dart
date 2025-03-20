@@ -13,7 +13,62 @@ enum ErrorCode {
   storageError,
   alreadyInitialized,
   notInitialized,
+  internalError,
   unknown,
+}
+
+/// Validation service status enum
+enum ValidationServiceStatus {
+  stopped,
+  starting,
+  running,
+  paused,
+  recovering,
+  failed,
+  shuttingDown,
+}
+
+/// Statistics for the validation service
+class ValidationServiceStats {
+  /// Number of transactions processed
+  final int transactionsProcessed;
+
+  /// Number of blocks validated
+  final int blocksValidated;
+
+  /// Number of blocks generated
+  final int blocksGenerated;
+
+  /// Number of validation errors
+  final int validationErrors;
+
+  /// Current task queue length
+  final int queueLength;
+
+  /// Average transaction processing time in milliseconds
+  final double avgTransactionTimeMs;
+
+  /// Service uptime in seconds
+  final int uptimeSeconds;
+
+  /// CPU usage percentage (0-100)
+  final double cpuUsage;
+
+  /// Memory usage in MB
+  final double memoryUsage;
+
+  /// Create a new validation service statistics object
+  ValidationServiceStats({
+    required this.transactionsProcessed,
+    required this.blocksValidated,
+    required this.blocksGenerated,
+    required this.validationErrors,
+    required this.queueLength,
+    required this.avgTransactionTimeMs,
+    required this.uptimeSeconds,
+    required this.cpuUsage,
+    required this.memoryUsage,
+  });
 }
 
 /// FFI class to interface with the SEBURE Blockchain Rust core
@@ -60,8 +115,9 @@ class SebureFFI {
     }
   }
 
-  // FFI function typedefs
+  // Core FFI function typedefs
   late final int Function() _sebureInit;
+  late final int Function() _sebureBlockchainInit;
   late final int Function(Pointer<Utf8>) _sebureStorageInit;
   late final int Function(Pointer<Utf8>) _sebureNetworkInit;
   late final int Function() _sebureNetworkStart;
@@ -72,11 +128,44 @@ class SebureFFI {
   late final void Function(Pointer<Utf8>) _sebureFreString;
   late final int Function() _sebureShutdown;
 
+  // Validation service FFI function typedefs
+  late final int Function(int, int, int, int, int)
+  _sebureValidationServiceCreate;
+  late final int Function(int) _sebureValidationServiceStart;
+  late final int Function(int) _sebureValidationServiceStop;
+  late final int Function(int) _sebureValidationServiceDestroy;
+  late final int Function(int) _sebureValidationServiceStatus;
+  late final int Function(int) _sebureValidationServicePause;
+  late final int Function(int) _sebureValidationServiceResume;
+  late final int Function(
+    int,
+    Pointer<Uint64>,
+    Pointer<Uint64>,
+    Pointer<Uint64>,
+    Pointer<Uint64>,
+    Pointer<Uint32>,
+    Pointer<Double>,
+    Pointer<Uint64>,
+    Pointer<Float>,
+    Pointer<Float>,
+  )
+  _sebureValidationServiceGetStats;
+  late final int Function(int, int, int, int, int, int)
+  _sebureValidationServiceUpdateConfig;
+  late final int Function(int, int, int, Pointer<Utf8>, Pointer<Uint64>)
+  _sebureValidationServiceAddTask;
+
   // Set up all the function bindings
   void _setupBindings() {
+    // Core bindings
     _sebureInit =
         _dylib
             .lookup<NativeFunction<Int32 Function()>>('sebure_init')
+            .asFunction();
+
+    _sebureBlockchainInit =
+        _dylib
+            .lookup<NativeFunction<Int32 Function()>>('sebure_blockchain_init')
             .asFunction();
 
     _sebureStorageInit =
@@ -125,11 +214,113 @@ class SebureFFI {
         _dylib
             .lookup<NativeFunction<Int32 Function()>>('sebure_shutdown')
             .asFunction();
+
+    // Validation service bindings
+    _sebureValidationServiceCreate =
+        _dylib
+            .lookup<
+              NativeFunction<
+                Uint32 Function(Uint32, Uint32, Uint32, Uint32, Uint32)
+              >
+            >('sebure_validation_service_create')
+            .asFunction();
+
+    _sebureValidationServiceStart =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_start',
+            )
+            .asFunction();
+
+    _sebureValidationServiceStop =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_stop',
+            )
+            .asFunction();
+
+    _sebureValidationServiceDestroy =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_destroy',
+            )
+            .asFunction();
+
+    _sebureValidationServiceStatus =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_status',
+            )
+            .asFunction();
+
+    _sebureValidationServicePause =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_pause',
+            )
+            .asFunction();
+
+    _sebureValidationServiceResume =
+        _dylib
+            .lookup<NativeFunction<Int32 Function(Uint32)>>(
+              'sebure_validation_service_resume',
+            )
+            .asFunction();
+
+    _sebureValidationServiceGetStats =
+        _dylib
+            .lookup<
+              NativeFunction<
+                Int32 Function(
+                  Uint32,
+                  Pointer<Uint64>,
+                  Pointer<Uint64>,
+                  Pointer<Uint64>,
+                  Pointer<Uint64>,
+                  Pointer<Uint32>,
+                  Pointer<Double>,
+                  Pointer<Uint64>,
+                  Pointer<Float>,
+                  Pointer<Float>,
+                )
+              >
+            >('sebure_validation_service_get_stats')
+            .asFunction();
+
+    _sebureValidationServiceUpdateConfig =
+        _dylib
+            .lookup<
+              NativeFunction<
+                Int32 Function(Uint32, Uint32, Uint32, Uint32, Uint32, Uint32)
+              >
+            >('sebure_validation_service_update_config')
+            .asFunction();
+
+    _sebureValidationServiceAddTask =
+        _dylib
+            .lookup<
+              NativeFunction<
+                Int32 Function(
+                  Uint32,
+                  Int32,
+                  Int32,
+                  Pointer<Utf8>,
+                  Pointer<Uint64>,
+                )
+              >
+            >('sebure_validation_service_add_task')
+            .asFunction();
   }
 
   /// Initialize the SEBURE blockchain core
   ErrorCode initCore() {
     final result = _sebureInit();
+    return ErrorCode.values[result];
+  }
+
+  /// Initialize the blockchain with default configuration
+  ErrorCode initBlockchain() {
+    final result = _sebureBlockchainInit();
     return ErrorCode.values[result];
   }
 
@@ -219,5 +410,161 @@ class SebureFFI {
   ErrorCode shutdown() {
     final result = _sebureShutdown();
     return ErrorCode.values[result];
+  }
+
+  /// Create and initialize a validation service
+  int createValidationService({
+    required int maxCpuUsage,
+    required int maxMemoryUsage,
+    required int queueSizeLimit,
+    required int processingTimeSlotMs,
+    required int batchSize,
+  }) {
+    return _sebureValidationServiceCreate(
+      maxCpuUsage,
+      maxMemoryUsage,
+      queueSizeLimit,
+      processingTimeSlotMs,
+      batchSize,
+    );
+  }
+
+  /// Start a validation service
+  int startValidationService(int serviceId) {
+    return _sebureValidationServiceStart(serviceId);
+  }
+
+  /// Stop a validation service
+  int stopValidationService(int serviceId) {
+    return _sebureValidationServiceStop(serviceId);
+  }
+
+  /// Destroy a validation service
+  int destroyValidationService(int serviceId) {
+    return _sebureValidationServiceDestroy(serviceId);
+  }
+
+  /// Get the status of a validation service
+  int getValidationServiceStatus(int serviceId) {
+    return _sebureValidationServiceStatus(serviceId);
+  }
+
+  /// Pause a validation service
+  int pauseValidationService(int serviceId) {
+    return _sebureValidationServicePause(serviceId);
+  }
+
+  /// Resume a validation service
+  int resumeValidationService(int serviceId) {
+    return _sebureValidationServiceResume(serviceId);
+  }
+
+  /// Get statistics from a validation service
+  ValidationServiceStats? getValidationServiceStats(int serviceId) {
+    final transactionsProcessed = calloc<Uint64>();
+    final blocksValidated = calloc<Uint64>();
+    final blocksGenerated = calloc<Uint64>();
+    final validationErrors = calloc<Uint64>();
+    final queueLength = calloc<Uint32>();
+    final avgTransactionTimeMs = calloc<Double>();
+    final uptimeSeconds = calloc<Uint64>();
+    final cpuUsage = calloc<Float>();
+    final memoryUsage = calloc<Float>();
+
+    try {
+      final result = _sebureValidationServiceGetStats(
+        serviceId,
+        transactionsProcessed,
+        blocksValidated,
+        blocksGenerated,
+        validationErrors,
+        queueLength,
+        avgTransactionTimeMs,
+        uptimeSeconds,
+        cpuUsage,
+        memoryUsage,
+      );
+
+      if (result == 0) {
+        return ValidationServiceStats(
+          transactionsProcessed: transactionsProcessed.value,
+          blocksValidated: blocksValidated.value,
+          blocksGenerated: blocksGenerated.value,
+          validationErrors: validationErrors.value,
+          queueLength: queueLength.value,
+          avgTransactionTimeMs: avgTransactionTimeMs.value,
+          uptimeSeconds: uptimeSeconds.value,
+          cpuUsage: cpuUsage.value.toDouble(),
+          memoryUsage: memoryUsage.value.toDouble(),
+        );
+      } else {
+        return null;
+      }
+    } finally {
+      calloc.free(transactionsProcessed);
+      calloc.free(blocksValidated);
+      calloc.free(blocksGenerated);
+      calloc.free(validationErrors);
+      calloc.free(queueLength);
+      calloc.free(avgTransactionTimeMs);
+      calloc.free(uptimeSeconds);
+      calloc.free(cpuUsage);
+      calloc.free(memoryUsage);
+    }
+  }
+
+  /// Update configuration for a validation service
+  int updateValidationServiceConfig(
+    int serviceId, {
+    required int maxCpuUsage,
+    required int maxMemoryUsage,
+    required int queueSizeLimit,
+    required int processingTimeSlotMs,
+    required int batchSize,
+  }) {
+    return _sebureValidationServiceUpdateConfig(
+      serviceId,
+      maxCpuUsage,
+      maxMemoryUsage,
+      queueSizeLimit,
+      processingTimeSlotMs,
+      batchSize,
+    );
+  }
+
+  /// Add a task to the validation service
+  ({int errorCode, int? taskId}) addValidationServiceTask(
+    int serviceId, {
+    required int taskType,
+    required int priority,
+    String? data,
+  }) {
+    final taskIdOut = calloc<Uint64>();
+    Pointer<Utf8>? dataUtf8;
+
+    try {
+      if (data != null) {
+        dataUtf8 = data.toNativeUtf8();
+      }
+
+      final result = _sebureValidationServiceAddTask(
+        serviceId,
+        taskType,
+        priority,
+        dataUtf8 ?? Pointer<Utf8>.fromAddress(0),
+        taskIdOut,
+      );
+
+      if (result == 0) {
+        return (errorCode: 0, taskId: taskIdOut.value);
+      } else {
+        return (errorCode: result, taskId: null);
+      }
+    } finally {
+      calloc.free(taskIdOut);
+      if (dataUtf8 != null) {
+        calloc.free(dataUtf8);
+      }
+    }
   }
 }

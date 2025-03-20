@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'dart:async'; // For Timer
 import '../models/app_state.dart';
 import '../services/blockchain_service.dart';
+import 'validation_settings_screen.dart';
 // These widgets will be implemented in future tasks
 // import '../widgets/resource_usage_chart.dart';
 // import '../widgets/node_control_panel.dart';
@@ -73,6 +74,18 @@ class _HomeScreenState extends State<HomeScreen> {
               // Navigate to wallet screen in the future
             },
             tooltip: 'Wallet',
+          ),
+          IconButton(
+            icon: const Icon(Icons.tune),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ValidationSettingsScreen(),
+                ),
+              );
+            },
+            tooltip: 'Validation Settings',
           ),
           IconButton(
             icon: const Icon(Icons.settings),
@@ -150,6 +163,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ? 'Stop Node'
                                       : 'Start Node',
                                 ),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) =>
+                                              const ValidationSettingsScreen(),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.tune),
+                                label: const Text('Validation Settings'),
                               ),
                             ],
                           );

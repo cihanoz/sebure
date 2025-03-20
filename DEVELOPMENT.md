@@ -290,6 +290,7 @@ The desktop application framework consists of several key components:
 2. **Service Layer**:
    - **`BlockchainService`**: Interface to core blockchain features
    - **`ConfigService`**: Persistent storage for application settings
+   - **`ValidationService`**: Background processing service management
    - Singleton pattern for shared service instances
    - Asynchronous APIs with proper error handling
 
@@ -304,6 +305,14 @@ The desktop application framework consists of several key components:
    - Resource cleanup on shutdown
    - State management throughout application lifecycle
    - Error handling and recovery
+
+5. **Background Validation Service**:
+   - Resource-controlled transaction processing
+   - Configurable CPU and memory usage limits
+   - Task scheduling with priority-based queuing
+   - Health monitoring and automatic recovery
+   - Statistics collection and reporting
+   - User interface for configuration and monitoring
 
 ### Working with FFI
 
