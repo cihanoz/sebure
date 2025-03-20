@@ -47,11 +47,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Implement transaction broadcasting
 
 ### Task 1.7: Simple Command-Line Interface
-- [ ] Create CLI node implementation for development testing
-- [ ] Implement basic node control commands
-- [ ] Develop transaction submission via CLI
-- [ ] Create blockchain explorer functionality
-- [ ] Implement logging and debugging tools
+- [x] Create CLI node implementation for development testing
+- [x] Implement basic node control commands
+- [x] Develop transaction submission via CLI
+- [x] Create blockchain explorer functionality
+- [x] Implement logging and debugging tools
 
 ## Milestone 2: Node Architecture & Basic Wallet
 

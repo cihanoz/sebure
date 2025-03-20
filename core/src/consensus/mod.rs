@@ -12,7 +12,7 @@ pub use validator::ValidatorPool;
 pub use dpos::DPoSConsensus;
 
 use crate::blockchain::Block;
-use crate::types::{Result, Error, BlockHeight, ShardId};
+use crate::types::{Result, BlockHeight, ShardId};
 use std::sync::{Arc, Mutex};
 
 /// Consensus configuration
@@ -82,6 +82,12 @@ pub trait Consensus {
     
     /// Get the validator for the given public key
     fn get_validator_by_pubkey(&self, pubkey: &[u8]) -> Option<Validator>;
+    
+    /// Get the list of all validators
+    fn get_validators(&self) -> Result<Vec<Validator>>;
+    
+    /// Get the list of all shards
+    fn get_shards(&self) -> Result<Vec<Shard>>;
 }
 
 /// ConsensusState represents the current state of the consensus mechanism
@@ -130,6 +136,92 @@ impl ConsensusState {
         (height % shard_count as u64) as ShardId
     }
 }
+
+/// Shard information
+#[derive(Debug, Clone)]
+pub struct Shard {
+    /// Shard ID
+    id: ShardId,
+    
+    /// Validators assigned to this shard
+    validator_pool: Vec<ValidatorId>,
+    
+    /// Current state root
+    state_root: Vec<u8>,
+    
+    /// Last known block height
+    last_block_height: u64,
+    
+    /// Transaction count in this shard
+    transaction_count: u64,
+    
+    /// Number of active accounts
+    active_accounts: u32,
+    
+    /// Recent cross-shard transactions
+    recent_cross_shard_transactions: Vec<Vec<u8>>,
+    
+    /// Connected shards
+    neighbor_shards: Vec<ShardId>,
+    
+    /// Current resource utilization (0.0 - 1.0)
+    resource_utilization: f32,
+}
+
+impl Shard {
+    /// Create a new shard
+    pub fn new(id: ShardId) -> Self {
+        Shard {
+            id,
+            validator_pool: Vec::new(),
+            state_root: vec![0; 32],
+            last_block_height: 0,
+            transaction_count: 0,
+            active_accounts: 0,
+            recent_cross_shard_transactions: Vec::new(),
+            neighbor_shards: Vec::new(),
+            resource_utilization: 0.0,
+        }
+    }
+    
+    /// Get the shard ID
+    pub fn id(&self) -> ShardId {
+        self.id
+    }
+    
+    /// Get the validator pool
+    pub fn validator_pool(&self) -> &Vec<ValidatorId> {
+        &self.validator_pool
+    }
+    
+    /// Get the transaction count
+    pub fn transaction_count(&self) -> u64 {
+        self.transaction_count
+    }
+    
+    /// Get the number of active accounts
+    pub fn active_accounts(&self) -> u32 {
+        self.active_accounts
+    }
+    
+    /// Get the resource utilization
+    pub fn resource_utilization(&self) -> f32 {
+        self.resource_utilization
+    }
+    
+    /// Get the last block height
+    pub fn last_block_height(&self) -> u64 {
+        self.last_block_height
+    }
+    
+    /// Get the neighbor shards
+    pub fn neighbor_shards(&self) -> &Vec<ShardId> {
+        &self.neighbor_shards
+    }
+}
+
+/// Validator ID type
+pub type ValidatorId = Vec<u8>;
 
 /// Factory for creating consensus instances
 pub struct ConsensusFactory;

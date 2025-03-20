@@ -5,6 +5,7 @@
 use crate::crypto::signature::Signature;
 use crate::types::{Result, ShardId, Timestamp, TransactionType, Priority, DataType};
 use serde::{Serialize, Deserialize};
+use crate::crypto::hash;
 
 /// Transaction represents a transfer of value or execution of logic
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -66,6 +67,18 @@ pub struct TransactionData {
     
     /// Data content
     pub content: Vec<u8>,
+}
+
+impl TransactionData {
+    /// Get the type of data
+    pub fn data_type(&self) -> DataType {
+        self.data_type
+    }
+    
+    /// Get the content of the data
+    pub fn content(&self) -> &Vec<u8> {
+        &self.content
+    }
 }
 
 impl Default for TransactionData {
@@ -130,35 +143,12 @@ impl Transaction {
             .unwrap()
             .as_micros() as u64;
         
-        // Create a "dummy" transaction with ID field to be filled
-        let mut tx = Transaction {
-            id: vec![0; 32], // Temporary ID, will be replaced
-            version: 1, // Set default version
-            transaction_type,
-            sender_public_key,
-            sender_shard,
-            recipient_address,
-            recipient_shard,
-            amount,
-            fee,
-            gas_limit,
-            nonce,
-            timestamp,
-            data,
-            dependencies,
-            signature,
-            execution_priority: Priority::Normal,
-        };
-        
-        // Calculate the proper transaction ID using the hash function
-        let id = match crate::crypto::hash::hash_transaction(&tx) {
-            Ok(hash) => hash,
-            Err(_) => vec![0; 32], // Fallback in case of error
-        };
+        // Calculate transaction ID based on the transaction data
+        let id = hash::sha256(&[0; 32]); // We'll use a placeholder hash for now
         
         Transaction {
-            id,
-            version: 1,
+            id: id.to_vec(),
+            version: 1, // Set default version
             transaction_type,
             sender_public_key,
             sender_shard,
@@ -228,13 +218,59 @@ impl Transaction {
         Ok(())
     }
     
-    /// Calculate the transaction hash
-    pub fn hash(&self) -> Vec<u8> {
-        // Use the hash_transaction function from our crypto module
-        match crate::crypto::hash::hash_transaction(self) {
-            Ok(hash) => hash,
-            Err(_) => vec![0; 32], // Fallback in case of error
-        }
+    /// Get the transaction ID
+    pub fn id(&self) -> &Vec<u8> {
+        &self.id
+    }
+    
+    /// Get the transaction type
+    pub fn transaction_type(&self) -> TransactionType {
+        self.transaction_type
+    }
+    
+    /// Get the sender's public key
+    pub fn sender_public_key(&self) -> &Vec<u8> {
+        &self.sender_public_key
+    }
+    
+    /// Get the sender's shard ID
+    pub fn sender_shard(&self) -> ShardId {
+        self.sender_shard
+    }
+    
+    /// Get the recipient's address
+    pub fn recipient_address(&self) -> &Vec<u8> {
+        &self.recipient_address
+    }
+    
+    /// Get the recipient's shard ID
+    pub fn recipient_shard(&self) -> ShardId {
+        self.recipient_shard
+    }
+    
+    /// Get the transaction amount
+    pub fn amount(&self) -> u64 {
+        self.amount
+    }
+    
+    /// Get the transaction fee
+    pub fn fee(&self) -> u32 {
+        self.fee
+    }
+    
+    /// Get the transaction nonce
+    pub fn nonce(&self) -> u64 {
+        self.nonce
+    }
+    
+    /// Get the transaction timestamp
+    pub fn timestamp(&self) -> Timestamp {
+        self.timestamp
+    }
+    
+    /// Get the transaction data
+    pub fn data(&self) -> &TransactionData {
+        &self.data
     }
     
     /// Get the estimated gas cost

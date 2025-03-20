@@ -4,7 +4,7 @@
 
 use crate::blockchain::{Block, ShardData};
 use crate::types::{Result, Error, BlockHeight, ShardId, Timestamp};
-use super::{Consensus, ConsensusConfig, ConsensusState, Validator, ValidatorPool};
+use super::{Consensus, ConsensusConfig, ConsensusState, Validator, ValidatorPool, Shard, ValidatorId};
 use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 use std::collections::HashMap;
@@ -55,11 +55,20 @@ pub struct DPoSConsensus {
     
     /// Block production schedule
     block_schedule: Arc<Mutex<HashMap<BlockHeight, HashMap<ShardId, Vec<u8>>>>>,
+    
+    /// Shards
+    shards: Arc<Mutex<Vec<Shard>>>,
 }
 
 impl DPoSConsensus {
     /// Create a new DPoS consensus instance
     pub fn new(config: ConsensusConfig) -> Self {
+        let mut shards = Vec::new();
+        // Initialize shards
+        for i in 0..config.shard_count {
+            shards.push(Shard::new(i));
+        }
+        
         DPoSConsensus {
             config,
             state: Arc::new(Mutex::new(ConsensusState::new())),
@@ -67,6 +76,7 @@ impl DPoSConsensus {
             block_history: Arc::new(Mutex::new(HashMap::new())),
             reward_schedule: RewardSchedule::default(),
             block_schedule: Arc::new(Mutex::new(HashMap::new())),
+            shards: Arc::new(Mutex::new(shards)),
         }
     }
     
@@ -533,6 +543,20 @@ impl Consensus for DPoSConsensus {
         state.validators.get_validator_by_pubkey(pubkey)
             .cloned()
     }
+    
+    fn get_validators(&self) -> Result<Vec<Validator>> {
+        let state = self.state.lock().unwrap();
+        
+        // Return all validators from the pool
+        Ok(state.validators.get_all_validators())
+    }
+    
+    fn get_shards(&self) -> Result<Vec<Shard>> {
+        let shards = self.shards.lock().unwrap();
+        
+        // Clone the shards to return them
+        Ok(shards.clone())
+    }
 }
 
 #[cfg(test)]
@@ -718,7 +742,7 @@ mod tests {
         );
         
         // Add shard data with transactions
-        let mut shard_data = ShardData {
+        let shard_data = ShardData {
             shard_id: 0,
             transactions: vec![vec![1, 2, 3], vec![4, 5, 6]], // 2 transactions
             execution_proof: Vec::new(),
