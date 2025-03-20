@@ -10,7 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Project structure and baseline architecture
 - Core module with blockchain data structures
-- Cryptography module with Ed25519 signatures and hashing
+- Comprehensive cryptography module with:
+  - Ed25519 signature generation and verification
+  - SHA-256 and BLAKE3 hashing utilities
+  - Secure key generation and management
+  - Key storage with encryption
+  - Address derivation and validation with Base58 encoding
 - Network module with peer management and message passing
 - Storage module with chain and state databases
 - Consensus module with Delegated Proof-of-Stake (DPoS) implementation

@@ -66,6 +66,23 @@ pub struct KeyPair {
     inner: Ed25519Keypair,
 }
 
+impl Clone for KeyPair {
+    fn clone(&self) -> Self {
+        // We can't clone Ed25519Keypair directly, so we'll recreate it from the seed
+        let private_key = self.private_key();
+        KeyPair::from_seed(&private_key).expect("Failed to clone keypair")
+    }
+}
+
+impl fmt::Debug for KeyPair {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("KeyPair")
+            .field("public_key", &hex::encode(self.public_key()))
+            .field("private_key", &"[REDACTED]")
+            .finish()
+    }
+}
+
 impl KeyPair {
     /// Generate a new random key pair
     pub fn generate() -> Self {

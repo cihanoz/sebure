@@ -19,11 +19,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Design and implement account model
 
 ### Task 1.3: Cryptographic Foundation
-- [ ] Implement Ed25519 signature generation and verification
-- [ ] Create SHA-256 hashing utilities for blocks and transactions
-- [ ] Implement BLAKE3 for high-speed hashing operations
-- [ ] Develop secure key generation mechanism
-- [ ] Create address derivation functions
+- [x] Implement Ed25519 signature generation and verification
+- [x] Create SHA-256 hashing utilities for blocks and transactions
+- [x] Implement BLAKE3 for high-speed hashing operations
+- [x] Develop secure key generation mechanism
+- [x] Create address derivation functions
 
 ### Task 1.4: Basic Chain Management
 - [ ] Implement chain validation logic

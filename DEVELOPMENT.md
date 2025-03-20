@@ -104,6 +104,11 @@ Contains the fundamental blockchain components:
   - `mod.rs`: Module exports and blockchain management
 - `src/consensus/`: Consensus mechanism (DPoS)
 - `src/crypto/`: Cryptographic utilities
+  - `hash.rs`: Hashing utilities (SHA-256, BLAKE3)
+  - `signature.rs`: Ed25519 signature generation and verification
+  - `address.rs`: Address derivation and verification with Base58 encoding
+  - `keystore.rs`: Secure key storage with encryption
+  - `mod.rs`: Module exports and utility functions
 - `src/network/`: P2P networking
 - `src/storage/`: Blockchain data storage
   - `chain_store.rs`: Storage for blockchain data

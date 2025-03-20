@@ -170,6 +170,12 @@ impl From<io::Error> for Error {
     }
 }
 
+impl From<serde_json::Error> for Error {
+    fn from(error: serde_json::Error) -> Self {
+        Error::Serialization(error.to_string())
+    }
+}
+
 /// Network configuration
 #[derive(Debug, Clone)]
 pub struct NetworkConfig {

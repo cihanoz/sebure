@@ -128,11 +128,24 @@ SEBURE provides multiple user interfaces:
 
 ### Cryptography
 
-Cryptographic functions are used throughout the system for:
-- Digital signatures (Ed25519)
-- Hash functions (SHA-256, BLAKE3)
-- Key generation and management
-- Address derivation
+The cryptography subsystem provides comprehensive security services throughout the system:
+
+- **Digital Signatures**: Ed25519 implementation for transaction signing and verification
+- **Hash Functions**: Multiple options including:
+  - SHA-256 for standard hashing operations
+  - BLAKE3 for high-speed hashing where performance is critical
+- **Key Management**: 
+  - Secure key generation with proper entropy
+  - Private key protection with password-based encryption
+  - Seed phrase generation for recovery
+- **Address Derivation**:
+  - Public key to address conversion using cryptographic hashing
+  - Base58 encoding with checksum validation
+  - Address validation and verification
+- **Secure Storage**:
+  - Encrypted key storage with strong password-based key derivation
+  - Multi-key management with metadata support
+  - Import/export capabilities
 
 ### Types System
 
