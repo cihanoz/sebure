@@ -113,14 +113,19 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Message passing between nodes
   - Block propagation
   - Transaction broadcasting
-- [x] Command-line interface development
+- [x] Simple command-line interface
+  - CLI node implementation for development testing
+  - Basic node control commands
+  - Transaction submission via CLI
+  - Blockchain explorer functionality
+  - Comprehensive DPoS consensus testing framework
 - [x] Complete blockchain data structure implementation
 - [x] State and account model implementation
 - [x] Serialization/deserialization utilities
 
 ### In Progress
 
-- [ ] Simple command-line interface for node operation
+- [ ] Desktop application framework development
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).
 

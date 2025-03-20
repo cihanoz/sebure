@@ -212,6 +212,33 @@ mod tests {
 - Focus on testing component interactions
 - Use realistic scenarios
 
+### DPoS Consensus Testing Framework
+
+The project includes a comprehensive testing framework for the Delegated Proof-of-Stake consensus mechanism in the `tests/dpos/` directory:
+
+- **Core Test Components**:
+  - `block.rs`: Block creation and validation tests
+  - `consensus.rs`: Consensus mechanism interface testing
+  - `consensus_state.rs`: State management and transitions
+  - `dpos_consensus.rs`: Complete DPoS implementation tests
+  - `reward.rs`: Reward calculation and distribution tests
+  - `test_helpers.rs`: Utilities for creating test validators and consensus setups
+  - `tests.rs`: Main test runner with individual test functions
+  - `types.rs`: Common types for testing
+  - `validator.rs`: Validator management and selection testing
+
+- **Running Consensus Tests**:
+  ```bash
+  cargo run --bin sebure_test
+  ```
+
+- **Writing DPoS Tests**:
+  - Use the test helper functions to set up consensus instances
+  - Create test validators with different stake amounts
+  - Test validator assignment to shards
+  - Validate block production and verification
+  - Test reward calculation with various transaction counts
+
 ### Performance Tests
 
 - Write benchmarks for performance-critical code

@@ -30,6 +30,26 @@ SEBURE Blockchain uses a multi-layered, modular architecture to achieve its perf
 
 ## Core Layer Components
 
+### Testing Framework
+
+The system includes a comprehensive testing framework for validating the correctness of core components:
+
+- **DPoS Consensus Testing**: A complete framework for testing the Delegated Proof-of-Stake consensus mechanism:
+  - Validator management and rotation testing
+  - Block production and validation simulation
+  - Reward calculation verification
+  - Consensus state management
+  - Shard assignment validation
+
+Key test components:
+- **Test Helpers**: Utilities for creating test validators and consensus configurations
+- **Block Tests**: Validation of block production and verification
+- **Validator Tests**: Testing of validator assignment, rotation, and management
+- **Consensus State Tests**: Verification of consensus state transitions and updates
+- **Reward Tests**: Validation of reward calculations and distributions
+
+The testing framework follows a modular design with specific test cases for each component, ensuring comprehensive coverage of the consensus mechanism.
+
 ### Blockchain Component
 
 The Blockchain component is responsible for managing blockchain data structures, including blocks and transactions. It handles:

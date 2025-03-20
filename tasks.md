@@ -52,6 +52,7 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Develop transaction submission via CLI
 - [x] Create blockchain explorer functionality
 - [x] Implement logging and debugging tools
+- [x] Add comprehensive DPoS consensus testing framework
 
 ## Milestone 2: Node Architecture & Basic Wallet
 

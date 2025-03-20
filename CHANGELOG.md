@@ -45,7 +45,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Block and transaction persistence
   - State database with account information
   - Efficient lookup and retrieval mechanisms
-- CLI interface for basic blockchain operations
+- CLI interface for basic blockchain operations including:
+  - Node control commands
+  - Transaction submission functionality
+  - Blockchain explorer features
+  - Development testing interfaces
+- DPoS consensus testing framework with:
+  - Validator management and rotation testing
+  - Block production and validation simulation
+  - Reward calculation verification
+  - Consensus state management tests
+  - Shard assignment validation
 - FFI bindings for integration with other languages
 - Flutter UI project structure for desktop and mobile interfaces
 - CI/CD pipeline using GitHub Actions for automated testing and building
