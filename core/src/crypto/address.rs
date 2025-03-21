@@ -3,7 +3,7 @@
 //! This module implements address derivation functions for the SEBURE blockchain.
 //! Addresses are derived from public keys using cryptographic hashing.
 
-use crate::crypto::{hash_data, HashAlgorithm};
+use crate::crypto::{sha256, Hash};
 use crate::types::{Result, Error};
 use ripemd::Ripemd160;
 use sha2::{Sha256, Digest};
@@ -115,11 +115,11 @@ fn calculate_checksum(payload: &[u8]) -> Vec<u8> {
 /// Derive an address from a public key using double hashing (SHA-256 + RIPEMD-160)
 pub fn derive_address(public_key: &[u8]) -> Result<Address> {
     // First apply SHA-256 to the public key
-    let sha256_hash = hash_data(public_key, HashAlgorithm::Sha256);
+    let sha256_hash = sha256(public_key);
     
     // Then apply RIPEMD-160 to the result
     let mut ripemd = Ripemd160::new();
-    ripemd.update(sha256_hash.as_bytes());
+    ripemd.update(&sha256_hash);
     let payload = ripemd.finalize().to_vec();
     
     if payload.len() != ADDRESS_PAYLOAD_LENGTH {

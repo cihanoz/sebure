@@ -269,7 +269,7 @@ impl KeyStore {
         // Here we're just using a hash of the ciphertext + password
         let mut mac_input = ciphertext.clone();
         mac_input.extend_from_slice(password.as_bytes());
-        let mac = crate::crypto::sha256(&mac_input).as_bytes().to_vec();
+        let mac = crate::crypto::sha256(&mac_input).to_vec();
         
         Ok(EncryptedKeyFile {
             version: 1,
@@ -297,7 +297,7 @@ impl KeyStore {
         // For our simple example, regenerate and check
         let mut mac_input = encrypted.ciphertext.clone();
         mac_input.extend_from_slice(password.as_bytes());
-        let computed_mac = crate::crypto::sha256(&mac_input).as_bytes().to_vec();
+        let computed_mac = crate::crypto::sha256(&mac_input).to_vec();
         
         if computed_mac != encrypted.mac {
             return Err(Error::Crypto("Invalid password or corrupted key file".to_string()));

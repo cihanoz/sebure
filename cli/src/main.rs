@@ -1,3 +1,6 @@
+use colored::*;
+use std::time::Instant;
+
 /// Run blockchain tests
 fn run_tests(test_type: String, verbose: bool) -> Result<(), Box<dyn std::error::Error>> {
     println!("{}", "Running SEBURE blockchain tests...".bright_blue());

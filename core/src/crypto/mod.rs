@@ -10,11 +10,9 @@ pub mod keystore;
 
 // Re-export main types
 pub use hash::Hash;
-pub use hash::hash_data;
-pub use hash::HashAlgorithm;
 pub use hash::sha256;
-pub use hash::blake3;
-pub use hash::hash_block;
+pub use hash::blake3_hash as blake3;
+pub use hash::hash_block_header as hash_block;
 pub use hash::hash_transaction;
 pub use signature::KeyPair;
 pub use signature::Signature;

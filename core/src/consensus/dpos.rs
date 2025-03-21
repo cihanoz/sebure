@@ -547,8 +547,11 @@ impl Consensus for DPoSConsensus {
     fn get_validators(&self) -> Result<Vec<Validator>> {
         let state = self.state.lock().unwrap();
         
-        // Return all validators from the pool
-        Ok(state.validators.get_all_validators())
+        // Return all validators from the pool (cloned to satisfy return type)
+        Ok(state.validators.get_all_validators()
+            .into_iter()
+            .cloned()
+            .collect())
     }
     
     fn get_shards(&self) -> Result<Vec<Shard>> {

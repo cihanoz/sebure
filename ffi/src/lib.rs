@@ -7,7 +7,13 @@ use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_uint, c_ulonglong};
 use std::sync::{Arc, Mutex, RwLock};
 use lazy_static::lazy_static;
-use sebure_core::{self, Blockchain, BlockchainConfig, Consensus, ConsensusConfig, Network, NetworkConfig, Storage, StorageConfig};
+use sebure_core::{
+    self, 
+    blockchain::{Blockchain, BlockchainConfig},
+    Consensus, ConsensusConfig,
+    Network, NetworkConfig,
+    Storage, StorageConfig
+};
 
 // Include the validation bridge module
 mod validation_bridge;
@@ -202,12 +208,12 @@ pub unsafe extern "C" fn sebure_network_init(listen_addr: *const c_char) -> Erro
 #[no_mangle]
 pub unsafe extern "C" fn sebure_network_start() -> ErrorCode {
     // Check if initialized
-    let network_lock = match NETWORK.lock() {
+    let mut network_lock = match NETWORK.lock() {
         Ok(lock) => lock,
         Err(_) => return ErrorCode::Unknown,
     };
 
-    let network = match network_lock.as_ref() {
+    let network = match network_lock.as_mut() {
         Some(n) => n,
         None => return ErrorCode::NotInitialized,
     };
@@ -333,7 +339,7 @@ pub unsafe extern "C" fn sebure_shutdown() -> ErrorCode {
             Err(_) => return ErrorCode::Unknown,
         };
 
-        if let Some(network) = network_lock.as_ref() {
+        if let Some(network) = network_lock.as_mut() {
             if let Err(_) = network.stop() {
                 return ErrorCode::NetworkError;
             }

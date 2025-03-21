@@ -3,7 +3,12 @@
 //! This module provides the interface between the Flutter UI and the Rust validation service,
 //! enabling communication through FFI and managing the validation service lifecycle.
 
-use sebure_core::{ValidationService, ValidationServiceConfig, TaskPriority, ServiceStatus, Blockchain, Result};
+use sebure_core::{
+    ValidationService, ValidationServiceConfig, 
+    TaskPriority, ServiceStatus, 
+    blockchain::Blockchain,  // Updated import path
+    Result
+};
 use std::ffi::{CStr, CString};
 use std::os::raw::{c_char, c_int, c_uint, c_ulonglong};
 use std::sync::{Arc, Mutex, RwLock};
