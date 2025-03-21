@@ -771,11 +771,12 @@ mod tests {
             100,
             1,
             0,
-            SystemTime::now()
-                .duration_since(SystemTime::UNIX_EPOCH)
-                .unwrap()
-                .as_micros() as u64,
-            vec![0, 1, 2, 3],
+            // Remove these extra arguments:
+            // SystemTime::now()
+            //     .duration_since(SystemTime::UNIX_EPOCH)
+            //     .unwrap()
+            //     .as_micros() as u64,
+            // vec![0, 1, 2, 3],
         )
     }
 
