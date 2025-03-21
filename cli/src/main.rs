@@ -1,5 +1,8 @@
 use colored::*;
 use std::time::Instant;
+use std::time::Duration;
+use indicatif::ProgressBar;
+use indicatif::ProgressStyle;
 
 /// Run blockchain tests
 fn run_tests(test_type: String, verbose: bool) -> Result<(), Box<dyn std::error::Error>> {
@@ -30,7 +33,7 @@ fn run_tests(test_type: String, verbose: bool) -> Result<(), Box<dyn std::error:
             
             let spinner = ProgressBar::new(tests.len() as u64);
             spinner.set_style(ProgressStyle::default_bar()
-                .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} {msg}")
+                .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} {msg}")?
                 .progress_chars("#>-"));
             
             // Run each test with a slight delay for demonstration purposes
@@ -49,25 +52,19 @@ fn run_tests(test_type: String, verbose: bool) -> Result<(), Box<dyn std::error:
             println!("{} Running all blockchain tests", "SEBURE".green());
             
             // Run all test categories
-            // In a real implementation, we'd run individual test suites in sequence
-            
-            // Simulate running multiple test categories
             let test_categories = ["dpos", "network", "storage", "transaction"];
-            let total_tests = test_categories.len();
             
-            let multi = ProgressBar::new_multi(
-                std::io::stderr(),
-                test_categories.iter().map(|&cat| {
-                    let pb = ProgressBar::new(5);
-                    pb.set_style(ProgressStyle::default_bar()
-                        .template(&format!("{{spinner:.green}} [{{elapsed_precise}}] [{{bar:40.cyan/blue}}] {} {{pos}}/{{len}}", cat))
-                        .progress_chars("#>-"));
-                    pb
-                }).collect(),
-            )?;
+            // Create individual progress bars for each category
+            let mut progress_bars: Vec<ProgressBar> = test_categories.iter().map(|&cat| {
+                let pb = ProgressBar::new(5);
+                pb.set_style(ProgressStyle::default_bar()
+                    .template(&format!("{{spinner:.green}} [{{elapsed_precise}}] [{{bar:40.cyan/blue}}] {} {{pos}}/{{len}}", cat))
+                    .expect("Failed to set progress bar style"));
+                pb
+            }).collect();
             
             // Simulate test execution for each category
-            for (i, pb) in multi.iter().enumerate() {
+            for (i, pb) in progress_bars.iter_mut().enumerate() {
                 let category = test_categories[i];
                 
                 for j in 0..5 {
@@ -88,5 +85,10 @@ fn run_tests(test_type: String, verbose: bool) -> Result<(), Box<dyn std::error:
     }
     
     println!("{} Test execution completed", "SEBURE".green());
+    Ok(())
+}
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Your main function implementation here
     Ok(())
 }
