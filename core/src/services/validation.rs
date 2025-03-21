@@ -7,6 +7,7 @@
 use crate::blockchain::{Block, Blockchain, Transaction};
 // Removed unused consensus imports
 use crate::types::{Result, Error};
+use crate::services::resource_manager::{ResourceManager, ResourceManagerConfig, ResourceType, ResourceUsage, ResourceStatus, ResourceRecommendation};
 use log::{debug, error, info, warn};
 use std::collections::VecDeque;
 use std::sync::{Arc, Mutex, RwLock};
@@ -246,6 +247,8 @@ pub struct ValidationService {
     recovery_attempts: Arc<RwLock<u8>>,
     /// Time when the service started
     start_time: Arc<RwLock<Instant>>,
+    /// Resource manager for monitoring and controlling system resources
+    resource_manager: Arc<RwLock<ResourceManager>>,
 }
 
 impl ValidationService {
@@ -256,6 +259,17 @@ impl ValidationService {
         let stats = Arc::new(RwLock::new(ServiceStats::default()));
         let recovery_attempts = Arc::new(RwLock::new(0));
         let start_time = Arc::new(RwLock::new(Instant::now()));
+        
+        // Create resource manager with configuration based on validation service config
+        let resource_config = ResourceManagerConfig {
+            max_cpu_usage: config.max_cpu_usage,
+            max_memory_usage: config.max_memory_usage,
+            monitoring_interval_ms: config.health_check_interval_ms / 2, // More frequent monitoring
+            enforce_limits: true,
+            ..ResourceManagerConfig::default()
+        };
+        
+        let resource_manager = Arc::new(RwLock::new(ResourceManager::new(resource_config)));
 
         Self {
             config,
@@ -267,6 +281,7 @@ impl ValidationService {
             blockchain,
             recovery_attempts,
             start_time,
+            resource_manager,
         }
     }
 
@@ -303,6 +318,14 @@ impl ValidationService {
             let mut stats = self.stats.write().unwrap();
             *stats = ServiceStats::default();
         }
+        
+        // Start the resource manager
+        {
+            let mut resource_manager = self.resource_manager.write().unwrap();
+            if let Err(e) = resource_manager.start() {
+                return Err(Error::Validation(format!("Failed to start resource manager: {}", e)));
+            }
+        }
 
         // Clone all Arc references for the service thread
         let task_queue = self.task_queue.clone();
@@ -312,6 +335,7 @@ impl ValidationService {
         let recovery_attempts = self.recovery_attempts.clone();
         let config = self.config.clone();
         let start_time = self.start_time.clone();
+        let resource_manager = self.resource_manager.clone();
 
         // Create and start the main service thread
         let service_thread = thread::spawn(move || {
@@ -341,10 +365,11 @@ impl ValidationService {
                         &stats,
                         &config,
                         config.batch_size,
+                        Some(&resource_manager),
                     );
 
                     // Update service statistics
-                    Self::update_stats(&stats, &task_queue, &start_time);
+                    Self::update_stats(&stats, &task_queue, &start_time, &resource_manager);
 
                     // Check if we're in recovery mode
                     if *status.read().unwrap() == ServiceStatus::Recovering {
@@ -459,6 +484,14 @@ impl ValidationService {
             let _ = thread.join();
         }
 
+        // Stop the resource manager
+        {
+            let mut resource_manager = self.resource_manager.write().unwrap();
+            if let Err(e) = resource_manager.stop() {
+                warn!("Failed to stop resource manager: {}", e);
+            }
+        }
+
         // Clear the task queue
         self.task_queue.lock().unwrap().clear();
 
@@ -551,9 +584,23 @@ impl ValidationService {
         stats: &Arc<RwLock<ServiceStats>>,
         config: &ValidationServiceConfig,
         batch_size: usize,
+        resource_manager: Option<&Arc<RwLock<ResourceManager>>>,
     ) {
+        // Determine the actual batch size to use
+        let actual_batch_size = if let Some(rm) = resource_manager {
+            // Use resource manager to calculate optimal batch size
+            // Assume each transaction takes about 0.1% CPU and 0.5MB memory
+            let optimal_size = rm.read().unwrap().calculate_optimal_batch_size(0.1, 0.5);
+            // Use the smaller of the configured batch size and the optimal size
+            optimal_size.min(batch_size)
+        } else {
+            batch_size
+        };
+        
+        debug!("Processing batch of up to {} tasks (optimal size based on resources)", actual_batch_size);
+        
         // Process a batch of tasks
-        for _ in 0..batch_size {
+        for _ in 0..actual_batch_size {
             // Get the next task
             let task = {
                 let mut queue = task_queue.lock().unwrap();
@@ -662,6 +709,7 @@ impl ValidationService {
         stats: &Arc<RwLock<ServiceStats>>,
         task_queue: &Arc<Mutex<TaskQueue>>,
         start_time: &Arc<RwLock<Instant>>,
+        resource_manager: &Arc<RwLock<ResourceManager>>,
     ) {
         let mut stats = stats.write().unwrap();
         
@@ -671,10 +719,10 @@ impl ValidationService {
         // Update uptime
         stats.uptime_seconds = start_time.read().unwrap().elapsed().as_secs();
         
-        // In a real implementation, we would update CPU and memory usage
-        // For now, use dummy values
-        stats.cpu_usage = 10.0;
-        stats.memory_usage = 200.0;
+        // Get resource usage from the resource manager
+        let resource_usage = resource_manager.read().unwrap().get_usage();
+        stats.cpu_usage = resource_usage.cpu_usage;
+        stats.memory_usage = resource_usage.memory_usage;
     }
 
     /// Attempt to recover from an error
@@ -736,10 +784,54 @@ impl ValidationService {
     pub fn queue_length(&self) -> usize {
         self.task_queue.lock().unwrap().size()
     }
+    
+    /// Get the current resource usage
+    pub fn get_resource_usage(&self) -> ResourceUsage {
+        self.resource_manager.read().unwrap().get_usage()
+    }
+    
+    /// Get the current resource status
+    pub fn get_resource_status(&self) -> ResourceStatus {
+        self.resource_manager.read().unwrap().get_status()
+    }
+    
+    /// Get resource recommendations
+    pub fn get_resource_recommendations(&self) -> Vec<ResourceRecommendation> {
+        self.resource_manager.read().unwrap().get_recommendations()
+    }
+    
+    /// Check if a specific resource is available
+    pub fn is_resource_available(&self, resource_type: ResourceType, amount: f32) -> bool {
+        self.resource_manager.read().unwrap().is_resource_available(resource_type, amount)
+    }
+    
+    /// Reserve resources for an operation
+    pub fn reserve_resources(&self, cpu: f32, memory: f32, network: f32, disk: u64) -> Result<()> {
+        self.resource_manager.read().unwrap().reserve_resources(cpu, memory, network, disk)
+    }
+    
+    /// Calculate the optimal batch size based on available resources
+    pub fn calculate_optimal_batch_size(&self, cpu_per_item: f32, memory_per_item: f32) -> usize {
+        self.resource_manager.read().unwrap().calculate_optimal_batch_size(cpu_per_item, memory_per_item)
+    }
 
     /// Update the service configuration
     pub fn update_config(&mut self, config: ValidationServiceConfig) {
-        self.config = config;
+        self.config = config.clone();
+        
+        // Update resource manager configuration
+        let resource_config = ResourceManagerConfig {
+            max_cpu_usage: config.max_cpu_usage,
+            max_memory_usage: config.max_memory_usage,
+            monitoring_interval_ms: config.health_check_interval_ms / 2,
+            ..ResourceManagerConfig::default()
+        };
+        
+        {
+            let mut resource_manager = self.resource_manager.write().unwrap();
+            resource_manager.update_config(resource_config);
+        }
+        
         info!("Validation service configuration updated: {:?}", self.config);
     }
 }

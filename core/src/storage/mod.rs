@@ -4,11 +4,14 @@
 //! including chain storage, state database, and configuration storage.
 
 mod chain_store;
-mod state_db;
+pub mod state_db;
 
 // Re-export main types
 pub use chain_store::ChainStore;
-pub use state_db::StateDB;
+pub use state_db::state_db::StateDB;
+pub use state_db::account::AccountInfo;
+pub use state_db::database_types::{DatabaseBackend, DatabaseColumn};
+pub use state_db::keys::StateDBKey;
 
 use crate::types::{Result, Error};
 use std::path::Path;

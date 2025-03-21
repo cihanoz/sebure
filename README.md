@@ -138,6 +138,12 @@ SEBURE Blockchain is currently in early development. The core components and arc
 
 ### In Progress
 
+- [x] Resource management system
+  - CPU usage monitoring and control
+  - Memory allocation management
+  - Network bandwidth controls
+  - Disk space management
+  - Resource allocation settings interface
 - [ ] State database implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).

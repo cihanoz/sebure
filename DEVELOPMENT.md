@@ -314,6 +314,14 @@ The desktop application framework consists of several key components:
    - Statistics collection and reporting
    - User interface for configuration and monitoring
 
+6. **Resource Management System**:
+   - System resource monitoring (CPU, memory, network, disk)
+   - Resource usage control with configurable limits
+   - Adaptive batch processing based on available resources
+   - Resource status reporting and recommendations
+   - Resource reservation for critical operations
+   - Integration with validation service for optimized processing
+
 ### Working with FFI
 
 When extending or modifying the FFI layer:

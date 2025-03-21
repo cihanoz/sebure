@@ -290,6 +290,14 @@ SEBURE provides multiple user interfaces:
    - Task queue monitoring and management
    - Service performance statistics visualization
    - Manual service control options (start, stop, pause, resume)
+   
+   **Resource Management System**:
+   - **Resource Monitoring**: Real-time tracking of CPU, memory, network, and disk usage
+   - **Resource Control**: Configurable limits for resource utilization
+   - **Adaptive Processing**: Dynamic adjustment of batch sizes based on available resources
+   - **Resource Recommendations**: Intelligent suggestions for optimal resource allocation
+   - **Resource Reservation**: Priority-based resource allocation for critical operations
+   - **Resource Status Reporting**: Comprehensive status indicators for system resources
 
 2. **Mobile UI** - Lightweight wallet interface
    - Account management

@@ -22,6 +22,7 @@ pub use crypto::Hash;
 pub use types::Result;
 pub use consensus::{Consensus, ConsensusConfig};
 pub use services::validation::{ValidationService, ValidationServiceConfig, TaskPriority, ServiceStatus};
+pub use services::resource_manager::{ResourceManager, ResourceManagerConfig, ResourceUsage, ResourceStatus, ResourceType};
 pub use storage::{Storage, StorageConfig};
 pub use network::{Network, NetworkConfig};
 pub use utils::{serialize, deserialize, to_json, from_json, SerializationFormat};

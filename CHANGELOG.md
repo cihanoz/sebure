@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Resource Management System with:
+  - Comprehensive system resource monitoring (CPU, memory, network, disk)
+  - Configurable resource usage limits with enforcement
+  - Dynamic batch size calculation based on available resources
+  - Resource status reporting and recommendations
+  - Resource reservation for critical operations
+  - Integration with validation service for optimized processing
 - Project structure and baseline architecture
 - Core module with blockchain data structures
 - Comprehensive cryptography module with:

@@ -29,6 +29,11 @@ async-std = "1.12"
 
 # Storage
 rocksdb = { version = "0.20", features = ["multi-threaded-cf"] }  # RocksDB for storage
+leveldb = { version = "0.8" }                                     # LevelDB for key-value storage
+leveldb-sys = "2.0"                                               # LevelDB system bindings
+lmdb = { version = "0.8" }                                        # LMDB for memory-mapped state access
+lmdb-sys = "0.8"                                                  # LMDB system bindings
+db-key = "0.0.5"                                                  # Key trait for database keys
 
 # Utilities
 thiserror = "1.0"          # Error handling
