@@ -5,6 +5,7 @@ import '../models/app_state.dart';
 import '../services/blockchain_service.dart';
 import 'validation_settings_screen.dart';
 import 'preferences_screen.dart';
+import 'wallet_screen.dart';
 import '../widgets/resource_usage_chart.dart';
 import '../widgets/node_control_panel.dart';
 import '../widgets/network_statistics.dart';
@@ -70,7 +71,10 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.account_balance_wallet),
             onPressed: () {
-              // Navigate to wallet screen in the future
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WalletScreen()),
+              );
             },
             tooltip: 'Wallet',
           ),

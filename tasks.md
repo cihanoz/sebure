@@ -106,11 +106,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create transaction validation and submission
 
 ### Task 2.8: Wallet UI
-- [ ] Design and implement balance display
-- [ ] Create send/receive transaction interface
-- [ ] Implement transaction history view
-- [ ] Develop QR code generation/scanning
-- [ ] Create contact management system
+- [x] Design and implement balance display
+- [x] Create send/receive transaction interface
+- [x] Implement transaction history view
+- [x] Develop QR code generation/scanning
+- [x] Create contact management system
 
 ## Milestone 3: Network Enhancements & Performance
 

@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'src/screens/home_screen.dart';
 import 'src/services/blockchain_service.dart';
 import 'src/services/config_service.dart';
+import 'src/services/contact_service.dart';
 import 'src/plugin/plugin_manager.dart';
 import 'src/models/app_state.dart';
+import 'src/models/contact.dart';
 
 void main() async {
   // Ensure Flutter is initialized
@@ -18,12 +20,19 @@ void main() async {
   final pluginManager = PluginManager.instance;
   await pluginManager.initialize();
 
+  // Initialize contact service
+  final contactService = ContactService.instance;
+  await contactService.initialize();
+
   // Initialize blockchain service
   // (this may take a moment so we do it in the splash screen)
 
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => AppState())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => AppState()),
+        ChangeNotifierProvider.value(value: contactService.contactListProvider),
+      ],
       child: const SebureApp(),
     ),
   );

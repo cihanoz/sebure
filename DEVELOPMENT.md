@@ -339,6 +339,9 @@ The desktop application framework consists of several key components:
    - **`BlockchainService`**: Interface to core blockchain features
    - **`ConfigService`**: Persistent storage for application settings
    - **`ValidationService`**: Background processing service management
+   - **`TransactionService`**: Transaction creation and management
+   - **`ContactService`**: Contact management for the wallet
+   - **`QrService`**: QR code generation and scanning
    - Singleton pattern for shared service instances
    - Asynchronous APIs with proper error handling
 
@@ -381,6 +384,13 @@ The desktop application framework consists of several key components:
    - Resource status reporting and recommendations
    - Resource reservation for critical operations
    - Integration with validation service for optimized processing
+
+8. **Wallet UI Components**:
+   - **Balance Display**: Shows current balance with token denomination
+   - **Send Transaction Interface**: Form for creating and sending transactions
+   - **Receive Interface**: QR code generation for receiving funds
+   - **Transaction History**: Filterable list of past transactions
+   - **Contact Management**: System for storing and managing recipient addresses
 
 ### Working with FFI
 

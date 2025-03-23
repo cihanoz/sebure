@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Wallet UI implementation with:
+  - Balance display with current address
+  - Send/receive transaction interface
+  - Transaction history view with filtering options
+  - QR code generation and scanning for addresses
+  - Contact management system with add/edit/delete functionality
 - Transaction Services with:
   - Transaction creation and signing functionality
   - Fee estimation algorithm with multiple models (fixed, size-based, type-based, dynamic)

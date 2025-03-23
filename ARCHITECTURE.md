@@ -352,6 +352,39 @@ SEBURE provides multiple user interfaces:
    - QR code support
    - Implemented with Flutter for iOS and Android
 
+### Wallet UI Components
+
+The wallet UI provides comprehensive functionality for managing cryptocurrency:
+
+1. **Balance Display**:
+   - Current balance with token denomination
+   - Address display with copy functionality
+   - Visual representation of account status
+
+2. **Send Transaction Interface**:
+   - Recipient selection from contacts or QR scan
+   - Amount input with balance validation
+   - Fee estimation and display
+   - Transaction confirmation flow
+   - Success/failure notifications
+
+3. **Receive Interface**:
+   - QR code generation for current address
+   - Address display with copy functionality
+   - Information card with usage instructions
+
+4. **Transaction History**:
+   - Chronological list of transactions
+   - Transaction filtering (all, sent, received)
+   - Detailed transaction information (amount, fee, status)
+   - Visual indicators for transaction types and status
+
+5. **Contact Management**:
+   - Contact list with name and address
+   - Add/edit/delete contact functionality
+   - Contact selection for transaction sending
+   - Persistent storage using SharedPreferences
+
 3. **CLI** - Command-line interface
    - Node control
    - Wallet operations

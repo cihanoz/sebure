@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../services/transaction_service.dart';
 
 /// Main application state management class
 class AppState extends ChangeNotifier {
@@ -10,6 +11,8 @@ class AppState extends ChangeNotifier {
   int _connectedPeers = 0;
   int _transactionsValidated = 0;
   double _balance = 0.0;
+  String _currentAddress = '';
+  List<Transaction> _transactions = [];
 
   // Getters
   bool get isNodeRunning => _isNodeRunning;
@@ -20,6 +23,8 @@ class AppState extends ChangeNotifier {
   int get connectedPeers => _connectedPeers;
   int get transactionsValidated => _transactionsValidated;
   double get balance => _balance;
+  String get currentAddress => _currentAddress;
+  List<Transaction> get transactions => List.unmodifiable(_transactions);
 
   // Methods to update state
   void updateNodeStatus({required bool isRunning}) {
@@ -49,6 +54,21 @@ class AppState extends ChangeNotifier {
 
   void updateBalance(double newBalance) {
     _balance = newBalance;
+    notifyListeners();
+  }
+
+  void setCurrentAddress(String address) {
+    _currentAddress = address;
+    notifyListeners();
+  }
+
+  void updateTransactions(List<Transaction> transactions) {
+    _transactions = transactions;
+    notifyListeners();
+  }
+
+  void addTransaction(Transaction transaction) {
+    _transactions.add(transaction);
     notifyListeners();
   }
 }
