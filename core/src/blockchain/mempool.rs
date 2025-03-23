@@ -40,8 +40,8 @@ impl Default for MempoolConfig {
 /// Transaction with additional mempool metadata
 #[derive(Debug, Clone)]
 struct MempoolTx {
-    /// The actual transaction
-    pub transaction: Transaction,
+    /// Reference to the actual transaction
+    pub transaction: Arc<Transaction>,
     
     /// When the transaction was added to the mempool
     pub received_at: Instant,
@@ -58,7 +58,7 @@ struct MempoolTx {
 
 impl MempoolTx {
     /// Create a new mempool transaction
-    fn new(tx: Transaction) -> Self {
+    fn new(tx: Arc<Transaction>) -> Self {
         // Estimate size (in a real implementation, this would be more accurate)
         let size = tx.id.len() + tx.sender_public_key.len() + tx.recipient_address.len() + 
                   tx.data.content.len() + 100; // Add 100 bytes for fixed fields
@@ -71,7 +71,7 @@ impl MempoolTx {
         };
         
         MempoolTx {
-            transaction: tx,
+            transaction: tx.clone(),
             received_at: Instant::now(),
             size,
             fee_per_byte,
@@ -175,7 +175,7 @@ impl Mempool {
     }
     
     /// Add a transaction to the mempool
-    pub fn add_transaction(&self, tx: Transaction) -> Result<()> {
+    pub fn add_transaction(&self, tx: &Transaction) -> Result<()> {
         // Basic validation
         if tx.id.is_empty() {
             return Err(Error::BlockValidation("Transaction ID is empty".to_string()));
@@ -185,7 +185,7 @@ impl Mempool {
         tx.is_valid()?;
         
         let tx_id = tx.id.clone();
-        let mempool_tx = MempoolTx::new(tx.clone());
+        let mempool_tx = MempoolTx::new(Arc::new(tx.clone()));
         
         // Check size
         if mempool_tx.size > self.config.max_tx_size {
@@ -246,7 +246,7 @@ impl Mempool {
             // Add reverse dependencies
             let mut reverse_deps = self.reverse_dependencies.lock().unwrap();
             for dep_id in &tx.dependencies {
-                let deps = reverse_deps.entry(dep_id.clone()).or_insert_with(Vec::new);
+                let deps = reverse_deps.entry(dep_id.clone()).or_insert_with(|| Vec::new());
                 deps.push(tx_id.clone());
             }
             
@@ -264,7 +264,7 @@ impl Mempool {
             }
             
             if !unmet_deps.is_empty() {
-                deps.insert(tx_id, unmet_deps);
+                deps.insert(tx_id.clone(), unmet_deps);
             } else {
                 // All dependencies are met, mark as ready
                 let mut transactions = self.transactions.lock().unwrap();
@@ -278,7 +278,7 @@ impl Mempool {
     }
     
     /// Get a transaction by its ID
-    pub fn get_transaction(&self, tx_id: &[u8]) -> Option<Transaction> {
+    pub fn get_transaction(&self, tx_id: &[u8]) -> Option<Arc<Transaction>> {
         let transactions = self.transactions.lock().unwrap();
         transactions.get(tx_id).map(|mempool_tx| mempool_tx.transaction.clone())
     }
@@ -286,10 +286,7 @@ impl Mempool {
     /// Remove a transaction from the mempool
     pub fn remove_transaction(&self, tx_id: &[u8]) -> Result<()> {
         // Get the transaction first to check if it exists
-        let tx_option = {
-            let transactions = self.transactions.lock().unwrap();
-            transactions.get(tx_id).map(|tx| tx.clone())
-        };
+        let tx_option = self.transactions.lock().unwrap().get(tx_id).cloned();
         
         if let Some(mempool_tx) = tx_option {
             // Remove from main index
@@ -357,7 +354,7 @@ impl Mempool {
     }
     
     /// Get a batch of transactions for inclusion in a block, filtered by shard
-    pub fn get_transactions_for_block(&self, shard_id: ShardId, max_count: usize) -> Vec<Transaction> {
+    pub fn get_transactions_for_block(&self, shard_id: ShardId, max_count: usize) -> Vec<Arc<Transaction>> {
         let mut result = Vec::with_capacity(max_count);
         let mut included_tx_ids = Vec::new();
         
@@ -466,16 +463,16 @@ mod tests {
         assert_eq!(mempool.size(), 0);
         
         // Add a transaction
-        let tx = create_test_transaction(
+        let tx = Arc::new(create_test_transaction(
             vec![1, 2, 3, 4],
             0, // shard 0
             1000,
             10,
             Priority::Normal,
             Vec::new(),
-        );
+        ));
         
-        assert!(mempool.add_transaction(tx.clone()).is_ok());
+        assert!(mempool.add_transaction(&tx).is_ok());
         assert_eq!(mempool.size(), 1);
         
         // Get the transaction
@@ -521,9 +518,9 @@ mod tests {
             Vec::new(),
         );
         
-        mempool.add_transaction(tx1.clone()).unwrap();
-        mempool.add_transaction(tx2.clone()).unwrap();
-        mempool.add_transaction(tx3.clone()).unwrap();
+        mempool.add_transaction(&tx1).unwrap();
+        mempool.add_transaction(&tx2).unwrap();
+        mempool.add_transaction(&tx3).unwrap();
         
         // Get transactions by priority
         let transactions = mempool.get_transactions_for_block(0, 3);
@@ -554,7 +551,7 @@ mod tests {
         );
         
         // Add tx2 first (which depends on tx1)
-        mempool.add_transaction(tx2.clone()).unwrap();
+        mempool.add_transaction(&tx2).unwrap();
         
         // Check that it's not ready
         {
@@ -573,7 +570,7 @@ mod tests {
             Vec::new(),
         );
         
-        mempool.add_transaction(tx1.clone()).unwrap();
+        mempool.add_transaction(&tx1).unwrap();
         
         // Check that tx2 is now ready
         {
@@ -636,9 +633,9 @@ mod tests {
             Vec::new(),
         );
         
-        mempool.add_transaction(tx1.clone()).unwrap();
-        mempool.add_transaction(tx2.clone()).unwrap();
-        mempool.add_transaction(tx3.clone()).unwrap();
+        mempool.add_transaction(&tx1).unwrap();
+        mempool.add_transaction(&tx2).unwrap();
+        mempool.add_transaction(&tx3).unwrap();
         
         // Get transactions for shard 0
         let shard0_txs = mempool.get_transactions_for_block(0, 10);
@@ -670,7 +667,7 @@ mod tests {
             Vec::new(),
         );
         
-        mempool.add_transaction(tx.clone()).unwrap();
+        mempool.add_transaction(&tx).unwrap();
         assert_eq!(mempool.size(), 1);
         
         // Wait for expiration
@@ -711,8 +708,8 @@ mod tests {
             Vec::new(),
         );
         
-        mempool.add_transaction(tx1).unwrap();
-        mempool.add_transaction(tx2).unwrap();
+        mempool.add_transaction(&tx1).unwrap();
+        mempool.add_transaction(&tx2).unwrap();
         assert_eq!(mempool.size(), 2);
         
         // Try to add a third transaction

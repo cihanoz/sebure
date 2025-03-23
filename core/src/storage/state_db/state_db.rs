@@ -14,7 +14,7 @@ use log::{info, warn, debug, error};
 use leveldb::database::Database as LevelDatabase;
 use leveldb::options::{Options as LevelOptions, ReadOptions, WriteOptions};
 use leveldb::iterator::Iterator as LevelIter;
-use leveldb::kv::KV;  // Add missing KV trait import
+use leveldb::kv::KV;
 
 // LMDB dependencies
 use lmdb::{Environment, Database as LmdbDatabase, DatabaseFlags, EnvironmentFlags, Transaction, WriteFlags};
@@ -213,45 +213,27 @@ impl StateDB {
     
     /// Get database version from metadata
     fn get_db_version(&self) -> Result<u32> {
-        // Try to get version from metadata
         match self.backend {
-            DatabaseBackend::Memory => {
-                // Memory backend always returns version 1
-                Ok(1)
-            },
+            DatabaseBackend::Memory => Ok(1),
             DatabaseBackend::LevelDB => {
                 if let Some(level_dbs) = &self.level_dbs {
                     if let Some(db) = level_dbs.get(&DatabaseColumn::Metadata) {
                         let db_guard = db.read().unwrap();
                         let key = DBKey::new(b"version".to_vec());
-                        match db_guard.get(&key, &ReadOptions::new()) {
+                        match db_guard.get(ReadOptions::new(), &key) {
                             Ok(Some(version_bytes)) => {
-                                // Convert bytes to u32
                                 if version_bytes.len() == 4 {
-                                    let version = u32::from_be_bytes([
-                                        version_bytes[0],
-                                        version_bytes[1],
-                                        version_bytes[2],
-                                        version_bytes[3],
-                                    ]);
-                                    return Ok(version);
+                                    return Ok(u32::from_be_bytes([
+                                        version_bytes[0], version_bytes[1],
+                                        version_bytes[2], version_bytes[3]
+                                    ]));
                                 }
-                                // Invalid version format, return 1
                                 Ok(1)
                             },
-                            _ => {
-                                // No version found, return 1
-                                Ok(1)
-                            }
+                            _ => Ok(1)
                         }
-                    } else {
-                        // No metadata database, return 1
-                        Ok(1)
-                    }
-                } else {
-                    // No level_dbs, return 1
-                    Ok(1)
-                }
+                    } else { Ok(1) }
+                } else { Ok(1) }
             },
             DatabaseBackend::LMDB => {
                 if let Some(env) = &self.lmdb_env {
@@ -263,38 +245,21 @@ impl StateDB {
                             let txn = env_guard.begin_ro_txn()
                                 .map_err(|e| Error::Storage(format!("Failed to begin LMDB transaction: {}", e)))?;
                             
-                            match txn.get(*db_guard, &b"version"[..]) {
+                            match txn.get(*db_guard, &b"version".to_vec()) {
                                 Ok(version_bytes) => {
-                                    // Convert bytes to u32
                                     if version_bytes.len() == 4 {
-                                        let version = u32::from_be_bytes([
-                                            version_bytes[0],
-                                            version_bytes[1],
-                                            version_bytes[2],
-                                            version_bytes[3],
-                                        ]);
-                                        return Ok(version);
+                                        return Ok(u32::from_be_bytes([
+                                            version_bytes[0], version_bytes[1],
+                                            version_bytes[2], version_bytes[3]
+                                        ]));
                                     }
-                                    // Invalid version format, return 1
                                     Ok(1)
                                 },
-                                _ => {
-                                    // No version found, return 1
-                                    Ok(1)
-                                }
+                                _ => Ok(1)
                             }
-                        } else {
-                            // No metadata database, return 1
-                            Ok(1)
-                        }
-                    } else {
-                        // No lmdb_dbs, return 1
-                        Ok(1)
-                    }
-                } else {
-                    // No env, return 1
-                    Ok(1)
-                }
+                        } else { Ok(1) }
+                    } else { Ok(1) }
+                } else { Ok(1) }
             },
         }
     }
@@ -324,18 +289,14 @@ impl StateDB {
         let version_bytes = version.to_be_bytes();
         
         match self.backend {
-            DatabaseBackend::Memory => {
-                // Memory backend doesn't persist version
-                Ok(())
-            },
+            DatabaseBackend::Memory => Ok(()),
             DatabaseBackend::LevelDB => {
                 if let Some(level_dbs) = &self.level_dbs {
                     if let Some(db) = level_dbs.get(&DatabaseColumn::Metadata) {
                         let db_guard = db.write().unwrap();
                         let key = DBKey::new(b"version".to_vec());
-                        db_guard.put(&key, &version_bytes, &WriteOptions::new())
-                            .map_err(|e| Error::Storage(format!("Failed to write version to LevelDB: {}", e)))?;
-                        Ok(())
+                        db_guard.put(WriteOptions::new(), &key, &version_bytes)
+                            .map_err(|e| Error::Storage(format!("Failed to write version to LevelDB: {}", e)))
                     } else {
                         Err(Error::Storage("Metadata database not found".to_string()))
                     }
@@ -353,13 +314,11 @@ impl StateDB {
                             let mut txn = env_guard.begin_rw_txn()
                                 .map_err(|e| Error::Storage(format!("Failed to begin LMDB transaction: {}", e)))?;
                             
-                            txn.put(*db_guard, &b"version"[..], &version_bytes, WriteFlags::empty())
+                            txn.put(*db_guard, &b"version".to_vec(), &version_bytes, WriteFlags::empty())
                                 .map_err(|e| Error::Storage(format!("Failed to write version to LMDB: {}", e)))?;
                             
                             txn.commit()
-                                .map_err(|e| Error::Storage(format!("Failed to commit LMDB transaction: {}", e)))?;
-                            
-                            Ok(())
+                                .map_err(|e| Error::Storage(format!("Failed to commit LMDB transaction: {}", e)))
                         } else {
                             Err(Error::Storage("Metadata database not found".to_string()))
                         }
@@ -425,26 +384,20 @@ impl StateDB {
                     if let Some(db) = level_dbs.get(&DatabaseColumn::AccountBalance) {
                         let db_guard = db.read().unwrap();
                         let key = DBKey::new(address.to_vec());
-                        match db_guard.get(&key, &ReadOptions::new()) {
+                        match db_guard.get(ReadOptions::new(), &key) {
                             Ok(Some(balance_bytes)) => {
-                                // Convert bytes to u64
                                 if balance_bytes.len() == 8 {
-                                    let balance = u64::from_be_bytes([
-                                        balance_bytes[0],
-                                        balance_bytes[1],
-                                        balance_bytes[2],
-                                        balance_bytes[3],
-                                        balance_bytes[4],
-                                        balance_bytes[5],
-                                        balance_bytes[6],
-                                        balance_bytes[7],
-                                    ]);
-                                    Ok(balance)
+                                    Ok(u64::from_be_bytes([
+                                        balance_bytes[0], balance_bytes[1],
+                                        balance_bytes[2], balance_bytes[3],
+                                        balance_bytes[4], balance_bytes[5],
+                                        balance_bytes[6], balance_bytes[7]
+                                    ]))
                                 } else {
                                     Err(Error::Storage(format!("Invalid balance format for address {:?}", address)))
                                 }
                             },
-                            Ok(None) => Ok(0), // No balance found, return 0
+                            Ok(None) => Ok(0),
                             Err(e) => Err(Error::Storage(format!("Failed to get balance from LevelDB: {}", e))),
                         }
                     } else {
@@ -464,26 +417,20 @@ impl StateDB {
                             let txn = env_guard.begin_ro_txn()
                                 .map_err(|e| Error::Storage(format!("Failed to begin LMDB transaction: {}", e)))?;
                             
-                            match txn.get(*db_guard, &address[..]) {
+                            match txn.get(*db_guard, &address.to_vec()) {
                                 Ok(balance_bytes) => {
-                                    // Convert bytes to u64
                                     if balance_bytes.len() == 8 {
-                                        let balance = u64::from_be_bytes([
-                                            balance_bytes[0],
-                                            balance_bytes[1],
-                                            balance_bytes[2],
-                                            balance_bytes[3],
-                                            balance_bytes[4],
-                                            balance_bytes[5],
-                                            balance_bytes[6],
-                                            balance_bytes[7],
-                                        ]);
-                                        Ok(balance)
+                                        Ok(u64::from_be_bytes([
+                                            balance_bytes[0], balance_bytes[1],
+                                            balance_bytes[2], balance_bytes[3],
+                                            balance_bytes[4], balance_bytes[5],
+                                            balance_bytes[6], balance_bytes[7]
+                                        ]))
                                     } else {
                                         Err(Error::Storage(format!("Invalid balance format for address {:?}", address)))
                                     }
                                 },
-                                Err(_) => Ok(0), // No balance found, return 0
+                                Err(_) => Ok(0),
                             }
                         } else {
                             Err(Error::Storage("Account balance database not found".to_string()))
