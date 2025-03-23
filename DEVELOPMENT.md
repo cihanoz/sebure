@@ -1,62 +1,11 @@
 # SEBURE Blockchain Development Guide
 
-This guide provides detailed information for developers who want to contribute to the SEBURE Blockchain project. It covers setting up a development environment, code organization, coding standards, testing practices, and the development workflow.
 
-## Development Environment Setup
 
-### Prerequisites
 
-- **Rust**: Latest stable version (1.68.0+)
-  ```bash
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-  ```
-  
-- **Flutter**: Latest stable version for UI development
-  ```bash
-  # macOS/Linux
-  git clone https://github.com/flutter/flutter.git -b stable
-  export PATH="$PATH:`pwd`/flutter/bin"
-  flutter doctor
-  ```
-
-- **Git**: For version control
-  ```bash
-  # For Ubuntu/Debian
-  sudo apt install git
-  
-  # For macOS (using Homebrew)
-  brew install git
-  ```
-  
-- **Cargo**: Rust's package manager (installed with Rust)
-
-- **Additional dependencies**:
-  - OpenSSL development libraries
-  - pkg-config
-  - CMake (for some dependencies)
-  
-  ```bash
-  # For Ubuntu/Debian
-  sudo apt install pkg-config libssl-dev cmake
-  
-  # For macOS
-  brew install openssl cmake
-  ```
-
-### Getting the Source Code
-
-1. Fork the repository on GitHub
-2. Clone your fork:
-   ```bash
-   git clone https://github.com/YOUR-USERNAME/sebure-blockchain.git
-   cd sebure-blockchain
-   ```
-3. Add the upstream repository:
-   ```bash
-   git remote add upstream https://github.com/sebure/sebure-blockchain.git
-   ```
-
-### Building the Project
+### API Documentation
+- Transaction optimization interface
+- Configuration options
 
 1. Build in development mode:
    ```bash
@@ -569,6 +518,58 @@ fn process_block(block: &Block) -> Result<()> {
 4. **Publishing**:
    - Publish crates to crates.io if applicable
    - Create GitHub releases
+
+## Transaction Optimization
+
+The transaction optimization system implements several key features to improve performance:
+
+### Optimistic Execution
+- Speculative execution of transactions
+- State tracking with rollback capability
+- Conflict detection and resolution
+- Validation of speculative results
+
+### Dependency Tracking
+- Dependency graph structure
+- Hard/soft/state dependency detection
+- Conflict resolution strategies
+- Integration with validation pipeline
+
+### Parallel Processing
+- Execution groups based on dependency analysis
+- Thread-safe state access patterns
+- Parallel execution scheduler
+- Resource management integration
+
+### Transaction Batching
+- Size-based batching algorithm
+- Position tracking for batched transactions
+- Network layer integration
+- Batch validation optimizations
+
+### Prioritization System
+- Fee-based prioritization algorithm
+- Time-sensitive transaction handling
+- Dynamic priority adjustment
+- Mempool management integration
+
+### Performance Metrics
+- Comprehensive metrics collection
+- Real-time performance monitoring
+- Resource utilization tracking
+- Transaction throughput analysis
+
+### Testing and Validation
+- Unit tests for optimization components
+- Integration tests with core systems
+- Performance benchmarks
+- Edge case testing
+
+### Configuration
+- Resource limits for optimization
+- Batch size configuration
+- Parallelism settings
+- Prioritization parameters
 
 ## Getting Help
 

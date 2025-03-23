@@ -78,9 +78,15 @@ Key features:
   - Tiered routing
   - Reputation management
 - CLI interface
-- Desktop application framework
+- Desktop application framework  
 - Background validation service
 - Wallet key management
+- Transaction optimization with:
+  - Optimistic execution
+  - Dependency tracking
+  - Parallel processing
+  - Batching
+  - Prioritization
 - Sharding implementation with:
   - State synchronization
   - Cross-shard communication
