@@ -166,6 +166,7 @@ Flutter-based user interfaces for desktop and mobile:
     - `preferences_screen.dart`: User preferences and settings
   - `/src/services`: Backend services
     - `blockchain_service.dart`: Interface to core blockchain functionality
+    - `transaction_service.dart`: Transaction creation, signing, and management
     - `validation_service.dart`: Background validation service management
     - `config_service.dart`: User preferences and configuration management
   - `/src/plugin`: Plugin system architecture
@@ -361,7 +362,19 @@ The desktop application framework consists of several key components:
    - Statistics collection and reporting
    - User interface for configuration and monitoring
 
-6. **Resource Management System**:
+6. **Transaction Service**:
+   - Transaction creation with comprehensive metadata
+   - Cryptographic signing using Ed25519
+   - Fee estimation with multiple models
+   - Transaction history tracking and management
+   - Balance calculation and monitoring
+   - Transaction validation and submission
+   - FFI integration for cross-language access
+   - Flutter service layer with reactive state management
+   - Background processing with compute isolates
+   - Mock data support for development and testing
+
+7. **Resource Management System**:
    - System resource monitoring (CPU, memory, network, disk)
    - Resource usage control with configurable limits
    - Adaptive batch processing based on available resources

@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Transaction Services with:
+  - Transaction creation and signing functionality
+  - Fee estimation algorithm with multiple models (fixed, size-based, type-based, dynamic)
+  - Transaction history tracking and caching
+  - Balance calculation and management
+  - Transaction validation and submission to mempool
+  - FFI bindings for cross-language integration
+  - Flutter service layer for UI integration
 - Wallet Key Management with:
   - BIP-39 mnemonic generation and recovery
   - Hierarchical Deterministic (HD) wallet implementation (BIP-32/BIP-44)

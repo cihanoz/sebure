@@ -2,3 +2,4 @@
 
 pub mod validation;
 pub mod resource_manager;
+pub mod transaction_service;

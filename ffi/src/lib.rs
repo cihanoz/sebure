@@ -15,8 +15,9 @@ use sebure_core::{
     Storage, StorageConfig
 };
 
-// Include the validation bridge module
+// Include bridge modules
 mod validation_bridge;
+mod transaction_bridge;
 
 // Global instances for the FFI layer
 lazy_static! {

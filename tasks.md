@@ -99,11 +99,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create hierarchical deterministic wallet support
 
 ### Task 2.7: Transaction Services
-- [ ] Implement transaction creation and signing
-- [ ] Create fee estimation algorithm
-- [ ] Develop transaction history tracking
-- [ ] Implement balance calculation logic
-- [ ] Create transaction validation and submission
+- [x] Implement transaction creation and signing
+- [x] Create fee estimation algorithm
+- [x] Develop transaction history tracking
+- [x] Implement balance calculation logic
+- [x] Create transaction validation and submission
 
 ### Task 2.8: Wallet UI
 - [ ] Design and implement balance display

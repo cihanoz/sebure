@@ -266,6 +266,45 @@ All FFI functions follow a consistent pattern:
 - Proper memory management for cross-language communication
 - Safe access to Rust data structures from Dart
 
+### Transaction Service
+
+The Transaction Service provides comprehensive transaction management capabilities:
+
+- **Transaction Creation and Signing**:
+  - Transaction creation with comprehensive metadata
+  - Cryptographic signing using Ed25519
+  - Fee estimation with multiple models (fixed, size-based, type-based, dynamic)
+  - Transaction validation before submission
+  - Support for different transaction types (transfer, contract, validator operations)
+
+- **Transaction History Management**:
+  - Comprehensive transaction history tracking
+  - Efficient caching for quick access
+  - Filtering and sorting capabilities
+  - Pagination support for large transaction sets
+  - Transaction status monitoring
+
+- **Balance Management**:
+  - Real-time balance calculation
+  - UTXO tracking and management
+  - Account nonce handling
+  - Balance history tracking
+  - Multi-currency support foundation
+
+- **FFI Integration**:
+  - Complete transaction service bindings for cross-language access
+  - Memory-safe parameter passing
+  - Proper error handling and reporting
+  - Asynchronous operation support
+  - Transaction lifecycle management across language boundaries
+
+- **Flutter Service Layer**:
+  - Abstraction over FFI for Flutter UI components
+  - Reactive state management for transaction updates
+  - Background processing with compute isolates
+  - Transaction model for UI representation
+  - Mock data support for development and testing
+
 ### User Interfaces
 
 SEBURE provides multiple user interfaces:

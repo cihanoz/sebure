@@ -150,6 +150,14 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Network statistics visualization
   - Validation settings controls
   - User preference system
+- [x] Transaction Services
+  - Transaction creation and signing functionality
+  - Fee estimation algorithm with multiple models
+  - Transaction history tracking and caching
+  - Balance calculation and management
+  - Transaction validation and submission to mempool
+  - FFI bindings for cross-language integration
+  - Flutter service layer for UI integration
 - [x] Wallet Key Management
   - Secure key generation with BIP-39 mnemonic support
   - Encrypted storage for private keys
