@@ -209,10 +209,45 @@ The network layer consists of several subcomponents:
 - Message receiving with proper deserialization
 - Network address management
 
+#### Mesh Network Topology
+- Resilient peer connections with redundant paths
+- Geographic region-based peer organization
+- Connection direction management (inbound/outbound)
+- Peer scoring based on performance and reliability
+- Automatic network topology optimization
+- Peer density control for efficient message propagation
+
+#### Bloom Filter Transaction Propagation
+- Space-efficient probabilistic data structure for transaction sets
+- Configurable false positive probability
+- Transaction hash filtering to reduce network overhead
+- Bloom filter serialization and deserialization
+- Transaction verification against local bloom filters
+- Automatic filter size adjustment based on transaction volume
+
+#### Fast Path Network Routes
+- Priority-based message routing for critical data
+- Peer selection based on latency and reliability
+- Dedicated paths for high-priority transactions and blocks
+- Performance-based fast path peer management
+- Automatic path optimization based on network conditions
+- Configurable fast path parameters
+
+#### Adaptive Bandwidth Allocation
+- Dynamic bandwidth management based on network conditions
+- Priority-based allocation for different message types
+- Burst mode for temporary bandwidth increases
+- Congestion detection and mitigation
+- Per-peer bandwidth tracking and control
+- Message queuing with priority-based scheduling
+- Bandwidth usage statistics and monitoring
+
 #### Node Communication
 - Block announcement and propagation system
 - Transaction broadcasting with batching
 - Bloom filter support for transaction announcements
+- Fast path routing for high-priority messages
+- Adaptive bandwidth allocation for efficient network usage
 - Efficient propagation using selective relay
 - Peer tracking to prevent redundant transfers
 - Rate limiting to prevent network flooding

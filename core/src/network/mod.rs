@@ -9,6 +9,10 @@ mod protocol;
 mod discovery;
 mod transport;
 mod node_communication;
+mod mesh_topology;
+mod bloom_filter;
+mod fast_path;
+mod bandwidth_manager;
 
 // Re-export main types
 pub use message::Message;
@@ -27,6 +31,16 @@ pub use transport::TransportConfig;
 pub use node_communication::NodeCommunication;
 pub use node_communication::BlockPropagationConfig;
 pub use node_communication::TransactionBroadcastConfig;
+pub use mesh_topology::MeshTopology;
+pub use mesh_topology::MeshTopologyConfig;
+pub use mesh_topology::Region;
+pub use mesh_topology::ConnectionDirection;
+pub use bloom_filter::BloomFilter;
+pub use bloom_filter::TransactionBloomFilter;
+pub use fast_path::FastPath;
+pub use fast_path::FastPathConfig;
+pub use bandwidth_manager::BandwidthManager;
+pub use bandwidth_manager::BandwidthConfig;
 
 use crate::types::{Result, Error};
 use std::collections::HashMap;

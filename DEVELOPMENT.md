@@ -123,6 +123,10 @@ Contains the fundamental blockchain components:
   - `discovery.rs`: Peer discovery mechanisms
   - `transport.rs`: Message transport layer
   - `node_communication.rs`: Block and transaction broadcasting
+  - `mesh_topology.rs`: Mesh network topology implementation
+  - `bloom_filter.rs`: Bloom filter for efficient transaction propagation
+  - `fast_path.rs`: Fast path routing for high-priority messages
+  - `bandwidth_manager.rs`: Adaptive bandwidth allocation
 - `src/storage/`: Blockchain data storage
   - `chain_store.rs`: Storage for blockchain data
   - `state_db.rs`: State database for account balances and contract state

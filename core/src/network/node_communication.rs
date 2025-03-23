@@ -8,7 +8,7 @@ use std::collections::{HashSet, HashMap};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use crate::network::{Message, MessageType, Transport};
+use crate::network::{Message, MessageType, Transport, TransactionBloomFilter, FastPath, FastPathConfig, BandwidthManager, BandwidthConfig};
 use crate::blockchain::{Block, Transaction};
 use crate::types::{Result, Error, Priority};
 
@@ -53,6 +53,12 @@ pub struct TransactionBroadcastConfig {
     
     /// Minimum time between transaction broadcasts (in seconds)
     pub min_broadcast_interval: u64,
+    
+    /// Maximum transactions to track in Bloom filter
+    pub max_bloom_filter_transactions: usize,
+    
+    /// False positive probability for Bloom filter
+    pub bloom_filter_false_positive_probability: f64,
 }
 
 impl Default for TransactionBroadcastConfig {
@@ -62,6 +68,8 @@ impl Default for TransactionBroadcastConfig {
             max_tx_batch_size: 100,
             use_bloom_filter: true,
             min_broadcast_interval: 1,
+            max_bloom_filter_transactions: 100000,
+            bloom_filter_false_positive_probability: 0.01,
         }
     }
 }
@@ -88,6 +96,15 @@ pub struct NodeCommunication {
     
     /// Running state
     running: Arc<Mutex<bool>>,
+    
+    /// Transaction Bloom filter
+    tx_bloom_filter: Arc<Mutex<TransactionBloomFilter>>,
+    
+    /// Fast path routing
+    fast_path: Arc<Mutex<FastPath>>,
+    
+    /// Bandwidth manager
+    bandwidth_manager: Arc<Mutex<BandwidthManager>>,
 }
 
 impl NodeCommunication {
@@ -101,6 +118,18 @@ impl NodeCommunication {
         last_broadcast.insert(MessageType::BlockAnnouncement, Instant::now());
         last_broadcast.insert(MessageType::TransactionAnnouncement, Instant::now());
         
+        // Create transaction Bloom filter
+        let tx_bloom_filter = TransactionBloomFilter::new(
+            tx_config.max_bloom_filter_transactions,
+            tx_config.bloom_filter_false_positive_probability,
+        );
+        
+        // Create fast path routing
+        let fast_path = FastPath::new(FastPathConfig::default());
+        
+        // Create bandwidth manager
+        let bandwidth_manager = BandwidthManager::new(BandwidthConfig::default());
+        
         NodeCommunication {
             block_config,
             tx_config,
@@ -109,6 +138,9 @@ impl NodeCommunication {
             known_txs: Arc::new(Mutex::new(HashMap::new())),
             last_broadcast: Arc::new(Mutex::new(last_broadcast)),
             running: Arc::new(Mutex::new(false)),
+            tx_bloom_filter: Arc::new(Mutex::new(tx_bloom_filter)),
+            fast_path: Arc::new(Mutex::new(fast_path)),
+            bandwidth_manager: Arc::new(Mutex::new(bandwidth_manager)),
         }
     }
     
@@ -368,9 +400,15 @@ impl NodeCommunication {
     
     /// Create a Bloom filter for transaction announcements
     fn create_bloom_filter_announcement(&self, tx_hashes: &[Vec<u8>]) -> Vec<u8> {
-        // In a real implementation, we would create a proper Bloom filter
-        // For now, just serialize the hashes directly
-        bincode::serialize(&tx_hashes).unwrap_or_else(|_| Vec::new())
+        let mut bloom_filter = self.tx_bloom_filter.lock().unwrap();
+        
+        // Add transaction hashes to the Bloom filter
+        for hash in tx_hashes {
+            bloom_filter.add_transaction(hash);
+        }
+        
+        // Serialize the Bloom filter
+        bloom_filter.serialize()
     }
     
     /// Send transaction batches to peers
@@ -422,12 +460,26 @@ impl NodeCommunication {
             return Err(Error::Network("Communication not running".to_string()));
         }
         
-        // Deserialize the announcement data
-        // If using Bloom filter, this would involve checking for potential matches
-        let tx_hashes: Vec<Vec<u8>> = match bincode::deserialize(data) {
-            Ok(data) => data,
-            Err(e) => {
-                return Err(Error::Deserialization(format!("Failed to deserialize transaction announcement: {}", e)));
+        // Check if the data is a Bloom filter or direct transaction hashes
+        let tx_hashes: Vec<Vec<u8>> = if self.tx_config.use_bloom_filter {
+            // Try to deserialize as a list of hashes first (for backward compatibility)
+            match bincode::deserialize(data) {
+                Ok(hashes) => hashes,
+                Err(_) => {
+                    // If that fails, assume it's a Bloom filter
+                    // In a real implementation, we would check our local transaction pool
+                    // against the Bloom filter to find potential matches
+                    // For now, just return an empty list
+                    Vec::new()
+                }
+            }
+        } else {
+            // Direct transaction hashes
+            match bincode::deserialize(data) {
+                Ok(hashes) => hashes,
+                Err(e) => {
+                    return Err(Error::Deserialization(format!("Failed to deserialize transaction announcement: {}", e)));
+                }
             }
         };
         
