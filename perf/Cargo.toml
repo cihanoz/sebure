@@ -1,0 +1,10 @@
+[package]
+name = "perf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+sebure-core = { path = "../core" }
+criterion = "0.4"
+tokio = { version = "1.0", features = ["full"] }
+rand = "0.8"

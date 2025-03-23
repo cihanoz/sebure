@@ -15,6 +15,16 @@ bs58 = "0.4"               # Base58 encoding/decoding for addresses
 hmac = "0.12"              # HMAC for HD wallet key derivation
 pbkdf2 = "0.11"            # PBKDF2 for mnemonic seed generation
 
+# Compression
+flate2 = "1.0"             # Compression/decompression
+crc = "3.0"                # CRC checksums
+
+# System info
+sysinfo = "0.29"           # System resource monitoring
+walkdir = "2.4"            # Directory traversal
+
+# Database
+
 # Serialization
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
@@ -54,6 +64,10 @@ tempfile = "3.3"           # Temporary files for testing
 [lib]
 name = "sebure_core"
 path = "src/lib.rs"
+
+[[test]]
+name = "performance"
+path = "tests/performance/mod.rs"
 
 # Uncomment when benchmarks are implemented
 # [[bench]]

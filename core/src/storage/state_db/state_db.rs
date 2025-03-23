@@ -14,6 +14,7 @@ use log::{info, warn, debug, error};
 use leveldb::database::Database as LevelDatabase;
 use leveldb::options::{Options as LevelOptions, ReadOptions, WriteOptions};
 use leveldb::iterator::Iterator as LevelIter;
+use leveldb::kv::KV;  // Add missing KV trait import
 
 // LMDB dependencies
 use lmdb::{Environment, Database as LmdbDatabase, DatabaseFlags, EnvironmentFlags, Transaction, WriteFlags};

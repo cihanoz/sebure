@@ -20,7 +20,7 @@ pub type ShardId = u16;
 pub type Timestamp = u64;
 
 /// Priority levels for network messages and transactions
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Hash)]
 pub enum Priority {
     /// Low priority
     Low,
