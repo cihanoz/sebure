@@ -77,6 +77,11 @@ Key features:
 - Desktop application framework
 - Background validation service
 - Wallet key management
+- Sharding implementation with:
+  - State synchronization
+  - Cross-shard communication
+  - State verification
+  - Validator signature verification
 
 ### In Progress
 - Advanced network topology
@@ -87,10 +92,9 @@ Key features:
 
 ### Future Milestones
 1. State database implementation
-2. Dynamic sharding
-3. Layer-2 integration
-4. Smart contract foundation
-5. Advanced governance features
+2. Layer-2 integration
+3. Smart contract foundation
+4. Advanced governance features
 
 ## Technical Specifications
 

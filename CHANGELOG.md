@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Node role assignment system (validator, block producer, router)
 - Tiered routing implementation with optimized paths
 - Reputation management system with scoring and decay mechanisms
+- Sharding implementation with:
+  - State synchronization between shards
+  - Cross-shard communication protocol
+  - State verification mechanisms
+  - Validator signature verification
 
 ## [1.3.0] - 2025-02-28
 ### Added

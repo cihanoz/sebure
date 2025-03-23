@@ -129,18 +129,18 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create protocol versioning system
 
 ### Task 3.3: Node Hierarchy
-- [ ] Implement hierarchical node organization
-- [ ] Create supernode functionality
-- [ ] Develop node role assignment algorithm
-- [ ] Implement specialized routing between node tiers
-- [ ] Create node reputation system
+- [x] Implement hierarchical node organization
+- [x] Create supernode functionality
+- [x] Develop node role assignment algorithm
+- [x] Implement specialized routing between node tiers
+- [x] Create node reputation system
 
 ### Task 3.4: Basic Sharding Implementation
-- [ ] Design sharding architecture as outlined in PRD section 8.1.4
-- [ ] Implement shard assignment for accounts and data
-- [ ] Create cross-shard communication protocol
-- [ ] Develop shard synchronization mechanism
-- [ ] Implement shard state verification
+- [x] Design sharding architecture as outlined in PRD section 8.1.4
+- [x] Implement shard assignment for accounts and data
+- [x] Create cross-shard communication protocol
+- [x] Develop shard synchronization mechanism
+- [x] Implement shard state verification
 
 ### Task 3.5: Enhanced Validator Pool
 - [ ] Implement BLS signatures for validator aggregation
