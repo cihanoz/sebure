@@ -5,6 +5,14 @@ All notable changes to the SEBURE Blockchain project will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-03-23
+### Added
+- BLS signature aggregation for validator pools
+- Deterministic validator rotation mechanism
+- Parallel block validation across validator groups
+- Validator set update functionality
+- Slashing conditions enforcement with unjailing
+
 ## [1.4.0] - 2025-03-23
 ### Added
 - Hierarchical node organization with supernode functionality

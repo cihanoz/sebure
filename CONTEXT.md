@@ -65,9 +65,13 @@ Key features:
 
 ### Completed Features
 - Core blockchain data structures
-- Cryptographic foundation (Ed25519, SHA-256, BLAKE3)
+- Cryptographic foundation (Ed25519, SHA-256, BLAKE3, BLS)
 - Basic chain management
-- DPoS consensus mechanism
+- DPoS consensus mechanism with:
+  - Validator rotation
+  - Parallel block validation
+  - Slashing conditions
+  - Validator set updates
 - Advanced network layer with:
   - Hierarchical node organization
   - Role assignment system
