@@ -187,9 +187,21 @@ The network layer consists of several subcomponents:
   - Peer discovery and exchange
   - Validator handshakes
   - Network health checks
-- Binary serialization for efficient network transport
+- Binary serialization for efficient network transport using bincode
+  - Transactions use compact binary format with fixed-size fields
+  - Variable-length data uses length-prefixed encoding
+  - Endianness: Little-endian for all numeric values
+  - Protocol versioning supported in message headers
+  - Comprehensive test coverage for serialization
+  - Fuzz testing for random input validation
+  - Performance benchmarks for serialization speed
 - Message verification with checksums and signatures
 - Prioritization system for different message types
+- Transaction binary format:
+  - Fixed header (version, type, shard IDs)
+  - Variable-length payload (addresses, data)
+  - Compact signature representation
+  - Dependency list using transaction ID hashes
 
 #### Peer Discovery
 - Multiple discovery methods:
