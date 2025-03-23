@@ -159,10 +159,19 @@ Flutter-based user interfaces for desktop and mobile:
   - `/src/ffi`: FFI bindings to the Rust core
   - `/src/models`: Data models for the UI
   - `/src/screens`: Application screens
+    - `home_screen.dart`: Main dashboard screen
+    - `validation_settings_screen.dart`: Validation service configuration
+    - `preferences_screen.dart`: User preferences and settings
   - `/src/services`: Backend services
+    - `blockchain_service.dart`: Interface to core blockchain functionality
+    - `validation_service.dart`: Background validation service management
+    - `config_service.dart`: User preferences and configuration management
   - `/src/plugin`: Plugin system architecture
   - `/src/utils`: Utility functions
   - `/src/widgets`: Reusable UI components
+    - `resource_usage_chart.dart`: Charts for CPU, memory, network, and disk usage
+    - `node_control_panel.dart`: Node status and control interface
+    - `network_statistics.dart`: Network metrics and visualizations
 
 ## Coding Standards
 
@@ -277,6 +286,42 @@ The project includes a comprehensive testing framework for the Delegated Proof-o
 - Monitor performance changes over time
 
 ## Flutter UI Development
+
+### Desktop UI Dashboard
+
+The Desktop UI Dashboard provides a comprehensive interface for monitoring and controlling the blockchain node:
+
+1. **Node Status Dashboard**:
+   - Real-time node status indicators (running, stopped, syncing)
+   - Start/stop controls for node operation
+   - Connected peers and transaction count display
+   - Auto-start configuration option
+
+2. **Resource Usage Monitoring**:
+   - Interactive charts for CPU, memory, network, and disk usage
+   - Real-time data visualization with FL Chart library
+   - Resource usage trends and metrics
+   - Visual indicators for resource limits
+
+3. **Network Statistics Visualization**:
+   - Transaction volume charts with historical data
+   - Connected peers metrics and visualization
+   - Block height and validation statistics
+   - Network health indicators
+
+4. **Validation Settings Controls**:
+   - Configuration interface for validation service parameters
+   - CPU and memory usage limit controls
+   - Task queue and batch size configuration
+   - Service status monitoring with visual indicators
+   - Manual control options (start, stop, pause, resume)
+
+5. **User Preferences System**:
+   - Theme selection (light, dark, system)
+   - Resource limit configuration
+   - Network settings management
+   - Custom peer configuration
+   - Log level selection
 
 ### Desktop Application Framework
 

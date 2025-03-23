@@ -271,10 +271,11 @@ All FFI functions follow a consistent pattern:
 SEBURE provides multiple user interfaces:
 
 1. **Desktop UI** - Full validation node interface
-   - Node status dashboard
-   - Validation controls
-   - Resource monitoring
-   - Integrated wallet functionality
+   - Node status dashboard with real-time status indicators and controls
+   - Resource monitoring with interactive charts and visualizations
+   - Network statistics with transaction and peer metrics
+   - Validation controls and settings
+   - User preferences system with theme and resource limit configuration
    - Implemented with Flutter for cross-platform support
 
    **Desktop Application Framework Components**:
@@ -283,6 +284,12 @@ SEBURE provides multiple user interfaces:
    - **Plugin Architecture**: Enables extending functionality without modifying core code
    - **Resource Management**: Controls and monitors system resource usage
    - **Service Layer**: Provides abstraction over FFI for Flutter UI components
+   
+   **Dashboard Components**:
+   - **Node Control Panel**: Interface for starting, stopping, and monitoring node status
+   - **Resource Usage Charts**: Interactive visualizations of CPU, memory, network, and disk usage
+   - **Network Statistics**: Real-time charts and metrics for blockchain network activity
+   - **Preferences System**: User interface for configuring application settings and resource limits
    
    **Validation Management Interface**:
    - Validation service status dashboard with real-time indicators

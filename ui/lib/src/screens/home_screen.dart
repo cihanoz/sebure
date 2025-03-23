@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'dart:async'; // For Timer
 import '../models/app_state.dart';
 import '../services/blockchain_service.dart';
 import 'validation_settings_screen.dart';
-// These widgets will be implemented in future tasks
-// import '../widgets/resource_usage_chart.dart';
-// import '../widgets/node_control_panel.dart';
-// import '../widgets/transaction_history.dart';
+import 'preferences_screen.dart';
+import '../widgets/resource_usage_chart.dart';
+import '../widgets/node_control_panel.dart';
+import '../widgets/network_statistics.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,7 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Navigate to settings screen in the future
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PreferencesScreen(),
+                ),
+              );
             },
             tooltip: 'Settings',
           ),
@@ -99,11 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
             children: [
-              // In a real implementation, we would use the actual widgets
-              // that we'll create in future tasks
               const Text(
                 'Node Dashboard',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -111,117 +112,27 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
 
               // Node status and controls
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Node Status',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Consumer<AppState>(
-                        builder: (context, appState, child) {
-                          return Row(
-                            children: [
-                              Icon(
-                                appState.isNodeRunning
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                color:
-                                    appState.isNodeRunning
-                                        ? Colors.green
-                                        : Colors.red,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                appState.isNodeRunning ? 'Running' : 'Stopped',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              const Spacer(),
-                              ElevatedButton(
-                                onPressed: () async {
-                                  final appState = Provider.of<AppState>(
-                                    context,
-                                    listen: false,
-                                  );
-                                  if (appState.isNodeRunning) {
-                                    await _blockchainService.stopNode();
-                                    appState.updateNodeStatus(isRunning: false);
-                                  } else {
-                                    await _blockchainService.startNode();
-                                    appState.updateNodeStatus(isRunning: true);
-                                  }
-                                },
-                                child: Text(
-                                  Provider.of<AppState>(context).isNodeRunning
-                                      ? 'Stop Node'
-                                      : 'Start Node',
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              const ValidationSettingsScreen(),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.tune),
-                                label: const Text('Validation Settings'),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              NodeControlPanel(),
 
+              const SizedBox(height: 24),
+
+              // Resource usage section
+              const Text(
+                'Resource Usage',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 16),
+              const ResourceUsageGrid(),
 
-              // Resource usage section - placeholder
-              Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Resource Usage',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              'Resource usage charts will be displayed here',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              const SizedBox(height: 24),
+
+              // Network statistics section
+              const Text(
+                'Network',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
+              const SizedBox(height: 16),
+              const NetworkStatistics(),
             ],
           ),
         ),

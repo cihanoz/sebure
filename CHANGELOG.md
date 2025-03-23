@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Desktop UI Dashboard with:
+  - Node status dashboard with real-time status indicators
+  - Resource usage monitoring displays with interactive charts
+  - Network statistics visualization with transaction and peer metrics
+  - Validation settings controls for service configuration
+  - User preference system with theme and resource limit settings
 - Resource Management System with:
   - Comprehensive system resource monitoring (CPU, memory, network, disk)
   - Configurable resource usage limits with enforcement

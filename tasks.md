@@ -85,11 +85,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create resource allocation settings interface
 
 ### Task 2.5: Desktop UI Dashboard
-- [ ] Design and implement node status dashboard
-- [ ] Create resource usage monitoring displays
-- [ ] Implement network statistics visualization
-- [ ] Develop validation settings controls
-- [ ] Create user preference system
+- [x] Design and implement node status dashboard
+- [x] Create resource usage monitoring displays
+- [x] Implement network statistics visualization
+- [x] Develop validation settings controls
+- [x] Create user preference system
 
 ### Task 2.6: Wallet Key Management
 - [ ] Implement secure key generation
