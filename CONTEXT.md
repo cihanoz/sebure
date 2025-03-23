@@ -30,6 +30,10 @@ Key features:
    - Mesh network topology
    - Bloom-filter-based transaction propagation
    - Adaptive bandwidth allocation
+   - Hierarchical node organization with supernodes
+   - Node role assignment (validator, block producer, router)
+   - Tiered routing with optimized paths
+   - Reputation management system
 
 4. **State Management**
    - Sharded state database
@@ -64,7 +68,11 @@ Key features:
 - Cryptographic foundation (Ed25519, SHA-256, BLAKE3)
 - Basic chain management
 - DPoS consensus mechanism
-- Minimal network layer
+- Advanced network layer with:
+  - Hierarchical node organization
+  - Role assignment system
+  - Tiered routing
+  - Reputation management
 - CLI interface
 - Desktop application framework
 - Background validation service
@@ -155,11 +163,12 @@ Key features:
 - [Architecture Overview](ARCHITECTURE.md) 
 - [Development Guide](DEVELOPMENT.md)
 - [Task List](tasks.md)
+- [Changelog](CHANGELOG.md)
 
 ## Task Documentation
-For each development task, a corresponding TASK-X-CHANGES.md file will be created to track:
+For each development task, a corresponding TASK-X-CHANGES.md file will be automatically created in the donetasks folder to track:
 - Files modified during the task
 - Implementation details
 - Testing results
 - Relevant notes and observations
-Example: When working on task 3.2, a TASK-3.2-CHANGES.md file will be created and maintained
+Example: When working on task 3.2, a donetasks/TASK-3.2-CHANGES.md file will be automatically created and maintained

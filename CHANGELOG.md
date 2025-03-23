@@ -5,6 +5,13 @@ All notable changes to the SEBURE Blockchain project will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-03-23
+### Added
+- Hierarchical node organization with supernode functionality
+- Node role assignment system (validator, block producer, router)
+- Tiered routing implementation with optimized paths
+- Reputation management system with scoring and decay mechanisms
+
 ## [1.3.0] - 2025-02-28
 ### Added
 - Binary protocol implementation for network messages
