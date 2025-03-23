@@ -3,7 +3,7 @@
 //! This module implements secure key management functionality for the SEBURE blockchain.
 //! It provides utilities for generating, storing, and recovering cryptographic keys.
 
-use crate::crypto::{KeyPair, Signature, Address, derive_address, seed_from_passphrase};
+use crate::crypto::{KeyPair, Signature, Address, derive_address, seed_from_passphrase, HDWallet, Mnemonic, MnemonicSize};
 use crate::types::{Result, Error};
 use rand::RngCore;
 use std::collections::HashMap;
@@ -334,31 +334,94 @@ impl KeyStore {
         })
     }
     
-    /// Create a seed phrase for key backup
-    pub fn generate_seed_phrase(word_count: usize) -> Result<String> {
-        // In a real implementation, use a proper BIP-39 library
-        // For this example, we'll use a simple word list approach
+    /// Create a BIP-39 mnemonic phrase for key backup
+    pub fn generate_mnemonic(size: MnemonicSize) -> Result<Mnemonic> {
+        Mnemonic::generate(size)
+    }
+    
+    /// Create a new HD wallet and store the master key
+    pub fn create_hd_wallet(&mut self, size: MnemonicSize, passphrase: Option<&str>, name: Option<String>, password: &str) -> Result<(HDWallet, KeyInfo)> {
+        // Create a new HD wallet
+        let wallet = HDWallet::new(size, passphrase)?;
         
-        const WORD_LIST: [&str; 20] = [
-            "apple", "banana", "cherry", "dragon", "elephant",
-            "forest", "guitar", "horizon", "island", "jungle",
-            "kettle", "leopard", "mountain", "notebook", "orange",
-            "penguin", "quantum", "rainbow", "sunset", "turtle",
-        ];
+        // Get the mnemonic for backup
+        let mnemonic = wallet.mnemonic().unwrap();
         
-        if word_count < 6 || word_count > 24 {
-            return Err(Error::Crypto("Word count must be between 6 and 24".to_string()));
+        // Derive the first account key (m/44'/9999'/0'/0/0)
+        let key_pair = wallet.derive_address_key(0, 0, 0)?;
+        
+        // Create key info
+        let mut key_info = KeyInfo::new(key_pair, name.clone())?;
+        
+        // Add HD wallet metadata
+        let mut metadata = HashMap::new();
+        if let Some(name_str) = name {
+            metadata.insert("name".to_string(), name_str);
+        }
+        metadata.insert("hd_wallet".to_string(), "true".to_string());
+        metadata.insert("derivation_path".to_string(), "m/44'/9999'/0'/0/0".to_string());
+        
+        // Store the key
+        self.store_key_with_metadata(&key_info, metadata, password)?;
+        
+        // Add to loaded keys
+        self.keys.push(key_info.clone());
+        
+        Ok((wallet, key_info))
+    }
+    
+    /// Import an HD wallet from a mnemonic phrase
+    pub fn import_hd_wallet(&mut self, phrase: &str, passphrase: Option<&str>, name: Option<String>, password: &str) -> Result<(HDWallet, KeyInfo)> {
+        // Create an HD wallet from the mnemonic
+        let wallet = HDWallet::from_mnemonic(phrase, passphrase)?;
+        
+        // Derive the first account key (m/44'/9999'/0'/0/0)
+        let key_pair = wallet.derive_address_key(0, 0, 0)?;
+        
+        // Create key info
+        let mut key_info = KeyInfo::new(key_pair, name.clone())?;
+        
+        // Add HD wallet metadata
+        let mut metadata = HashMap::new();
+        if let Some(name_str) = name {
+            metadata.insert("name".to_string(), name_str);
+        }
+        metadata.insert("hd_wallet".to_string(), "true".to_string());
+        metadata.insert("derivation_path".to_string(), "m/44'/9999'/0'/0/0".to_string());
+        
+        // Store the key
+        self.store_key_with_metadata(&key_info, metadata, password)?;
+        
+        // Add to loaded keys
+        self.keys.push(key_info.clone());
+        
+        Ok((wallet, key_info))
+    }
+    
+    /// Store a key with additional metadata
+    fn store_key_with_metadata(&self, key_info: &KeyInfo, metadata: HashMap<String, String>, password: &str) -> Result<PathBuf> {
+        // Generate a filename based on address
+        let address_str = key_info.address.to_base58();
+        let filename = format!("UTC--{}--{}.json", 
+            key_info.created_at,
+            &address_str);
+        let file_path = self.path.join(filename);
+        
+        // Create the encrypted key file
+        let mut encrypted = self.encrypt_key(key_info, password)?;
+        
+        // Add metadata
+        for (key, value) in metadata {
+            encrypted.metadata.insert(key, value);
         }
         
-        let mut rng = rand::thread_rng();
-        let mut words = Vec::with_capacity(word_count);
+        // Write to file
+        let json = serde_json::to_string_pretty(&encrypted)?;
+        let mut file = fs::File::create(&file_path)?;
+        file.write_all(json.as_bytes())?;
         
-        for _ in 0..word_count {
-            let idx = (rng.next_u32() as usize) % WORD_LIST.len();
-            words.push(WORD_LIST[idx]);
-        }
-        
-        Ok(words.join(" "))
+        debug!("Stored key for address {} to {:?}", address_str, file_path);
+        Ok(file_path)
     }
 }
 
@@ -414,23 +477,34 @@ mod tests {
     }
     
     #[test]
-    fn test_seed_phrase() -> Result<()> {
+    fn test_mnemonic() -> Result<()> {
         let (mut keystore, _temp_dir) = create_temp_keystore()?;
         
-        // Generate a seed phrase
-        let seed_phrase = KeyStore::generate_seed_phrase(12)?;
-        let words: Vec<&str> = seed_phrase.split_whitespace().collect();
+        // Generate a mnemonic
+        let mnemonic = KeyStore::generate_mnemonic(MnemonicSize::Words12)?;
+        let phrase = mnemonic.to_phrase();
+        let words: Vec<&str> = phrase.split_whitespace().collect();
         assert_eq!(words.len(), 12);
         
-        // Import the key from seed phrase
+        // Import HD wallet from the mnemonic
         let password = "test_password";
-        let key_info = keystore.import_from_seed_phrase(&seed_phrase, Some("Seed Key".to_string()), password)?;
+        let (wallet, key_info) = keystore.import_hd_wallet(&phrase, None, Some("HD Wallet".to_string()), password)?;
         
-        // Create the same key directly from the seed phrase to verify
-        let direct_key = KeyInfo::from_seed_phrase(&seed_phrase, None)?;
+        // Verify the wallet has the mnemonic
+        assert!(wallet.mnemonic().is_some());
+        assert_eq!(wallet.mnemonic().unwrap().to_phrase(), phrase);
         
-        // The addresses should match
-        assert_eq!(key_info.address, direct_key.address);
+        // Verify the key was stored
+        assert_eq!(keystore.key_count(), 1);
+        
+        // Create a new keystore and load keys
+        let mut keystore2 = KeyStore::new(keystore.path.clone())?;
+        keystore2.load_all(password)?;
+        
+        // Verify the key was loaded
+        assert_eq!(keystore2.key_count(), 1);
+        let loaded_key = &keystore2.get_keys()[0];
+        assert_eq!(loaded_key.address, key_info.address);
         
         Ok(())
     }

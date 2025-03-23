@@ -92,11 +92,11 @@ This document outlines the incremental development tasks for building the SEBURE
 - [x] Create user preference system
 
 ### Task 2.6: Wallet Key Management
-- [ ] Implement secure key generation
-- [ ] Create encrypted storage for private keys
-- [ ] Develop key backup and recovery mechanism
-- [ ] Implement multi-signature capability
-- [ ] Create hierarchical deterministic wallet support
+- [x] Implement secure key generation
+- [x] Create encrypted storage for private keys
+- [x] Develop key backup and recovery mechanism
+- [x] Implement multi-signature capability
+- [x] Create hierarchical deterministic wallet support
 
 ### Task 2.7: Transaction Services
 - [ ] Implement transaction creation and signing

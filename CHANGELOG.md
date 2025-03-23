@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Wallet Key Management with:
+  - BIP-39 mnemonic generation and recovery
+  - Hierarchical Deterministic (HD) wallet implementation (BIP-32/BIP-44)
+  - Multi-signature wallet support with M-of-N schemes
+  - Secure key storage with encryption
+  - Key backup and recovery mechanisms
 - Desktop UI Dashboard with:
   - Node status dashboard with real-time status indicators
   - Resource usage monitoring displays with interactive charts

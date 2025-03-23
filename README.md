@@ -150,6 +150,12 @@ SEBURE Blockchain is currently in early development. The core components and arc
   - Network statistics visualization
   - Validation settings controls
   - User preference system
+- [x] Wallet Key Management
+  - Secure key generation with BIP-39 mnemonic support
+  - Encrypted storage for private keys
+  - Key backup and recovery mechanism using BIP-39 mnemonics
+  - Multi-signature capability with M-of-N schemes
+  - Hierarchical deterministic wallet support (BIP-32/BIP-44)
 - [ ] State database implementation
 
 For a complete list of planned tasks, see [tasks.md](tasks.md).

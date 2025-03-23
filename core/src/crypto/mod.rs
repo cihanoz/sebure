@@ -7,6 +7,8 @@ pub mod hash;
 pub mod signature;
 pub mod address;
 pub mod keystore;
+pub mod hdwallet;
+pub mod bip39_wordlist;
 
 // Re-export main types
 pub use hash::Hash;
@@ -22,6 +24,12 @@ pub use address::Address;
 pub use address::derive_address;
 pub use keystore::KeyStore;
 pub use keystore::KeyInfo;
+pub use hdwallet::HDWallet;
+pub use hdwallet::Mnemonic;
+pub use hdwallet::MnemonicSize;
+pub use hdwallet::DerivationPath;
+pub use hdwallet::MultiSigWallet;
+pub use hdwallet::MultiSigScheme;
 
 /// Generates a secure random seed for cryptographic operations
 pub fn generate_seed() -> Vec<u8> {

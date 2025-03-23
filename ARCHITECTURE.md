@@ -347,15 +347,19 @@ The cryptography subsystem provides comprehensive security services throughout t
 - **Key Management**: 
   - Secure key generation with proper entropy
   - Private key protection with password-based encryption
-  - Seed phrase generation for recovery
+  - BIP-39 mnemonic generation for recovery
+  - Hierarchical Deterministic (HD) wallet support (BIP-32/BIP-44)
+  - Multi-signature wallet capabilities with M-of-N schemes
 - **Address Derivation**:
   - Public key to address conversion using cryptographic hashing
   - Base58 encoding with checksum validation
   - Address validation and verification
+  - Derivation path support for HD wallets
 - **Secure Storage**:
   - Encrypted key storage with strong password-based key derivation
   - Multi-key management with metadata support
   - Import/export capabilities
+  - HD wallet metadata tracking
 
 ### Types System
 

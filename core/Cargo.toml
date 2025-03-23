@@ -12,6 +12,8 @@ sha2 = "0.10"              # SHA-256 and other SHA-2 variants
 blake3 = "1.3"             # BLAKE3 for high-speed hashing
 ripemd = "0.1"             # RIPEMD-160 hashing for address generation
 bs58 = "0.4"               # Base58 encoding/decoding for addresses
+hmac = "0.12"              # HMAC for HD wallet key derivation
+pbkdf2 = "0.11"            # PBKDF2 for mnemonic seed generation
 
 # Serialization
 serde = { version = "1.0", features = ["derive"] }

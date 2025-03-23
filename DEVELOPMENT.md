@@ -112,6 +112,8 @@ Contains the fundamental blockchain components:
   - `signature.rs`: Ed25519 signature generation and verification
   - `address.rs`: Address derivation and verification with Base58 encoding
   - `keystore.rs`: Secure key storage with encryption
+  - `hdwallet.rs`: Hierarchical deterministic wallet implementation (BIP-32/BIP-44)
+  - `bip39_wordlist.rs`: BIP-39 mnemonic wordlist for wallet recovery
   - `mod.rs`: Module exports and utility functions
 - `src/network/`: P2P networking
   - `mod.rs`: Network module coordination and API
